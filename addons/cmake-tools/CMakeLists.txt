@@ -1,7 +1,7 @@
 add_library(cmaketoolsplugin MODULE "")
 target_compile_definitions(cmaketoolsplugin PRIVATE TRANSLATION_DOMAIN="cmaketoolsplugin")
 target_link_libraries(cmaketoolsplugin PRIVATE kateprivate KF5::I18n KF5::TextEditor)
-
+ki18n_wrap_ui(cmaketoolsplugin cmaketoolswidget.ui)
 target_sources(
   cmaketoolsplugin
   PRIVATE

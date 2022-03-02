@@ -10,12 +10,18 @@
 #include <KXMLGUIClient>
 
 #include <QVariant>
+#include <QWidget>
 
 #include "cmakecompletion.h"
+
+#include "ui_cmaketoolswidget.h"
 
 /**
  * Plugin
  */
+class CMakeToolsWidget;
+
+
 class CMakeToolsPlugin : public KTextEditor::Plugin
 {
     Q_OBJECT
@@ -26,6 +32,7 @@ public:
     ~CMakeToolsPlugin() override;
 
     QObject *createView(KTextEditor::MainWindow *mainWindow) override;
+
 };
 
 /**
@@ -46,6 +53,27 @@ private Q_SLOTS:
 private:
     KTextEditor::MainWindow *m_mainWindow;
     CMakeCompletion m_completion;
+    CMakeToolsWidget *m_widget;
+    std::unique_ptr<QWidget> m_toolview;
+};
+
+class CMakeToolsWidget : public QWidget, public Ui::CMakeToolsWidget
+{
+    Q_OBJECT
+
+public:
+    CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget *parent);
+
+    ~CMakeToolsWidget() override;
+
+private:
+    KTextEditor::MainWindow *m_mainWindow;
+    void cmakeToolsBuildDir();
+    void cmakeToolsSourceDir();
+    void cmakeToolsGenLink();
+    int cmakeToolsCheckifConfigured(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
+    int cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompile_Commands_json_path);
+    int cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path, int createReturn);
 };
 
 #endif
