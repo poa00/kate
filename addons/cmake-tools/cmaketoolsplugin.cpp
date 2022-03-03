@@ -16,7 +16,6 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QFile>
-#include <QStandardPaths>
 
 K_PLUGIN_FACTORY_WITH_JSON(CMakeToolsPluginFactory, "cmaketoolsplugin.json", registerPlugin<CMakeToolsPlugin>();)
 
@@ -42,7 +41,6 @@ CMakeToolsPluginView::CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor
                                                    QIcon::fromTheme(QStringLiteral("folder")),
                                                    i18n("CMake Tools")));
     m_widget = new CMakeToolsWidget(mainwindow, m_toolview.get());
-    m_widget->show();
 
     connect(m_mainWindow, &KTextEditor::MainWindow::viewCreated, this, &CMakeToolsPluginView::onViewCreated);
     /**
