@@ -66,6 +66,8 @@ public:
 
     ~CMakeToolsWidget() override;
 
+    void checkCMakeListsFolder(QString recPath);
+
 private:
     KTextEditor::MainWindow *m_mainWindow;
     void cmakeToolsBuildDir();

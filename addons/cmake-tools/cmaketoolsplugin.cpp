@@ -59,6 +59,8 @@ CMakeToolsPluginView::~CMakeToolsPluginView()
 
 void CMakeToolsPluginView::onViewCreated(KTextEditor::View *v)
 {
+    m_widget->checkCMakeListsFolder((v->document()->url()).path());
+
     if (!CMakeCompletion::isCMakeFile(v->document()->url()))
         return;
 
@@ -83,6 +85,31 @@ CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget 
 
 CMakeToolsWidget::
 ~CMakeToolsWidget() = default;
+
+void CMakeToolsWidget::checkCMakeListsFolder(QString viewPath){
+    QString iterPath = viewPath;
+    iterPath.truncate(viewPath.lastIndexOf(QChar(47)));
+
+    if(!sourceDirectoryPath->text().isEmpty() && iterPath.contains(sourceDirectoryPath->text())){
+        return;
+    }
+
+    QString comparePath = viewPath;
+    comparePath.truncate(viewPath.lastIndexOf(QChar(47), 0));
+
+    QString lastPath;
+
+    while(QString::compare(iterPath, comparePath) != 0){
+        if(!QFileInfo(iterPath + QStringLiteral("/CMakeLists.txt")).exists()){
+            break;
+        }
+        lastPath = iterPath;
+        iterPath.truncate(iterPath.lastIndexOf(QChar(47)));
+    }
+
+    sourceDirectoryPath->setText(lastPath);
+    return;
+}
 
 void CMakeToolsWidget::cmakeToolsBuildDir(){
     const QString prefix = QFileDialog::getExistingDirectory(this, QStringLiteral("Get build folder"),
