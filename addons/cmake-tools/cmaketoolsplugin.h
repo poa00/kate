@@ -66,16 +66,17 @@ public:
 
     ~CMakeToolsWidget() override;
 
-    void checkCMakeListsFolder(QString recPath);
+private Q_SLOTS:
+    void checkCMakeListsFolder(KTextEditor::View *v);
+    void cmakeToolsBuildDir();
+    void cmakeToolsSourceDir();
 
 private:
     KTextEditor::MainWindow *m_mainWindow;
-    void cmakeToolsBuildDir();
-    void cmakeToolsSourceDir();
     void cmakeToolsGenLink();
-    int cmakeToolsCheckifConfigured(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
-    int cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompile_Commands_json_path);
-    int cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path, int createReturn);
+    bool cmakeToolsCheckifConfigured(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
+    bool cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompile_Commands_json_path);
+    bool cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path, bool createReturn);
 };
 
 #endif
