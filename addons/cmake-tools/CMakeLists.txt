@@ -7,6 +7,7 @@ target_sources(
   PRIVATE
     cmaketoolsplugin.cpp
     cmakecompletion.cpp
+    cmaketoolswidget.cpp
 )
 
 # ensure we are able to load plugins pre-install, too, directories must match!

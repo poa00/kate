@@ -14,13 +14,11 @@
 
 #include "cmakecompletion.h"
 
-#include "ui_cmaketoolswidget.h"
-
 /**
  * Plugin
  */
-class CMakeToolsWidget;
 
+class CMakeToolsWidget;
 
 class CMakeToolsPlugin : public KTextEditor::Plugin
 {
@@ -55,28 +53,6 @@ private:
     CMakeCompletion m_completion;
     CMakeToolsWidget *m_widget;
     std::unique_ptr<QWidget> m_toolview;
-};
-
-class CMakeToolsWidget : public QWidget, public Ui::CMakeToolsWidget
-{
-    Q_OBJECT
-
-public:
-    CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget *parent);
-
-    ~CMakeToolsWidget() override;
-
-private Q_SLOTS:
-    void checkCMakeListsFolder(KTextEditor::View *v);
-    void cmakeToolsBuildDir();
-    void cmakeToolsSourceDir();
-
-private:
-    KTextEditor::MainWindow *m_mainWindow;
-    void cmakeToolsGenLink();
-    bool cmakeToolsCheckifConfigured(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
-    bool cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompile_Commands_json_path);
-    bool cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path, bool createReturn);
 };
 
 #endif
