@@ -30,11 +30,11 @@ CMakeToolsPluginView::CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor
     : QObject(plugin)
     , m_mainWindow(mainwindow)
 {
-    m_toolview.reset(      mainwindow->createToolView(plugin,
-                                                   QStringLiteral("kate_private_plugin_katecmaketoolsplugin"),
-                                                   KTextEditor::MainWindow::Bottom,
-                                                   QIcon::fromTheme(QStringLiteral("folder")),
-                                                   i18n("CMake Tools")));
+    m_toolview.reset(mainwindow->createToolView(plugin,
+                                                QStringLiteral("kate_private_plugin_katecmaketoolsplugin"),
+                                                KTextEditor::MainWindow::Bottom,
+                                                QIcon::fromTheme(QStringLiteral("folder")),
+                                                i18n("CMake Tools")));
     m_widget = new CMakeToolsWidget(mainwindow, m_toolview.get());
 
     connect(m_mainWindow, &KTextEditor::MainWindow::viewCreated, this, &CMakeToolsPluginView::onViewCreated);
@@ -58,7 +58,6 @@ void CMakeToolsPluginView::onViewCreated(KTextEditor::View *v)
         return;
 
     qWarning() << "Registering code completion model for view <<" << v << v->document()->url();
-
 
     KTextEditor::CodeCompletionInterface *cci = qobject_cast<KTextEditor::CodeCompletionInterface *>(v);
     if (cci) {

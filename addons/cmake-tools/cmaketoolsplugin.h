@@ -30,7 +30,6 @@ public:
     ~CMakeToolsPlugin() override;
 
     QObject *createView(KTextEditor::MainWindow *mainWindow) override;
-
 };
 
 /**
