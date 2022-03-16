@@ -22,37 +22,42 @@ CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget 
 CMakeToolsWidget::
 ~CMakeToolsWidget() = default;
 
-enum CMakeRunStatus{
+enum CMakeRunStatus {
     FAILURE = false,
     SUCCESS = true
 };
 
-void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v){
-    QString iterPath = v->document()->url().path();
-    iterPath.truncate(iterPath.lastIndexOf(QChar(47)));
+void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v) {
+
+    auto getDocumentPath = [&v]() {
+        return v->document()->url().path();
+    };
+
+    QString iterPath = getDocumentPath();
+    iterPath.truncate(iterPath.lastIndexOf(QLatin1Char('/')));
 
     if(!sourceDirectoryPath->text().isEmpty() && iterPath.contains(sourceDirectoryPath->text())){
         return;
     }
 
-    QString comparePath = v->document()->url().path();
-    comparePath.truncate(comparePath.lastIndexOf(QChar(47), 0));
+    QString comparePath = getDocumentPath();
+    comparePath.truncate(comparePath.lastIndexOf(QLatin1Char('/'), 0));
 
     QString lastPath;
 
-    while(QString::compare(iterPath, comparePath) != 0){
+    while(iterPath != comparePath) {
         if(!QFileInfo(iterPath + QStringLiteral("/CMakeLists.txt")).exists()){
             break;
         }
         lastPath = iterPath;
-        iterPath.truncate(iterPath.lastIndexOf(QChar(47)));
+        iterPath.truncate(iterPath.lastIndexOf(QLatin1Char('/')));
     }
 
     sourceDirectoryPath->setText(lastPath);
     return;
 }
 
-void CMakeToolsWidget::cmakeToolsBuildDir(){
+void CMakeToolsWidget::cmakeToolsBuildDir() {
     const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get build folder"),
                                                                    QDir::homePath());
     if (prefix.isEmpty()) {
@@ -62,7 +67,7 @@ void CMakeToolsWidget::cmakeToolsBuildDir(){
     buildDirectoryPath->setText(prefix);
 }
 
-void CMakeToolsWidget::cmakeToolsSourceDir(){
+void CMakeToolsWidget::cmakeToolsSourceDir() {
     const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get source folder"),
                                                                    QDir::homePath());
     if (prefix.isEmpty()) {
@@ -85,7 +90,7 @@ bool CMakeToolsWidget::cmakeToolsCheckifConfigured(QString sourceCompileCommands
     return CMakeRunStatus::SUCCESS;
 }
 
-bool CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompileCommandsJsonpath){
+bool CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompileCommandsJsonpath) {
     QProcess cmakeProcess;
     int cmakeProcessReturn;
 
@@ -95,7 +100,7 @@ bool CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(QString bui
 
     QString buildCMakeCachetxtPath = buildDirectoryPath->text() + QStringLiteral("/CMakeCache.txt");
 
-    if(!QFileInfo(buildCMakeCachetxtPath).exists()){
+    if(!QFileInfo(buildCMakeCachetxtPath).exists()) {
         QMessageBox::warning(this, i18n("Warning"),
                                    i18n("File CMakeCache.txt not present on folder ") +
                                    i18n(buildDirectoryPath->text().toStdString().c_str()));
@@ -111,7 +116,7 @@ bool CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(QString bui
     cmakeProcessReturn = cmakeProcess.execute(QStringLiteral("cmake"), QStringList{buildDirectoryPath->text(),
                                                                        QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")});
 
-    if(!cmakeProcess.waitForFinished(-1) && cmakeProcessReturn != 0){
+    if(!cmakeProcess.waitForFinished(-1) && cmakeProcessReturn != 0) {
         QMessageBox::warning(this, i18n("Warning"),
                                    i18n("Failed to generate the compile_commands.json file ") +
                                    i18n((QStringLiteral("\nCMake return code: %1").arg(cmakeProcessReturn)).toStdString().c_str()));
@@ -122,18 +127,18 @@ bool CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(QString bui
 }
 
 bool CMakeToolsWidget::cmakeToolsCreateLink(QString sourceCompileCommandsJsonpath,
-                                           QString buildCompileCommandsJsonpath, bool createReturn){
+                                           QString buildCompileCommandsJsonpath, bool createReturn) {
     if(createReturn == CMakeRunStatus::FAILURE){
         return CMakeRunStatus::FAILURE;
     }
 
-    if(QFileInfo(sourceCompileCommandsJsonpath).exists()){
+    if(QFileInfo(sourceCompileCommandsJsonpath).exists()) {
         QFile(sourceCompileCommandsJsonpath).remove();
     }
 
     QFile orig(buildCompileCommandsJsonpath);
 
-    if(!orig.link(sourceCompileCommandsJsonpath)){
+    if(!orig.link(sourceCompileCommandsJsonpath)) {
         QMessageBox::warning(this, i18n("Warning"),
                                    i18n("Failed to create link in ") +
                                    i18n(sourceDirectoryPath->text().toStdString().c_str()));
@@ -143,7 +148,7 @@ bool CMakeToolsWidget::cmakeToolsCreateLink(QString sourceCompileCommandsJsonpat
     return CMakeRunStatus::SUCCESS;
 }
 
-void CMakeToolsWidget::cmakeToolsGenLink(){
+void CMakeToolsWidget::cmakeToolsGenLink() {
     const QString sourceCompileCommandsJsonpath = sourceDirectoryPath->text() + QStringLiteral("/compile_commands.json");
     const QString buildCompileCommandsJsonpath = buildDirectoryPath->text() + QStringLiteral("/compile_commands.json");
 
@@ -151,14 +156,14 @@ void CMakeToolsWidget::cmakeToolsGenLink(){
 
     createReturn = cmakeToolsCheckifConfigured(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath);
 
-    if(createReturn == CMakeRunStatus::FAILURE){
+    if(createReturn == CMakeRunStatus::FAILURE) {
         return;
     }
 
     createReturn = cmakeToolsVerifyAndCreateCommands_Compilejson(buildCompileCommandsJsonpath);
     createReturn = cmakeToolsCreateLink(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath, createReturn);
 
-    if(createReturn == CMakeRunStatus::FAILURE){
+    if(createReturn == CMakeRunStatus::FAILURE) {
         return;
     }
 
