@@ -30,9 +30,9 @@ private Q_SLOTS:
 
 private:
     KTextEditor::MainWindow *m_mainWindow;
-    CMakeRunStatus cmakeToolsCheckifConfigured(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
-    CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompile_Commands_json_path);
-    CMakeRunStatus cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
+    CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
+    CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompile_Commands_json_path);
+    CMakeRunStatus cmakeToolsCreateLink(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
 };
 
 #endif

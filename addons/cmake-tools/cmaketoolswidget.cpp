@@ -72,20 +72,20 @@ void CMakeToolsWidget::cmakeToolsSourceDir() {
     sourceDirectoryPath->setText(prefix);
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(QString sourceCompileCommandsJsonpath,
-                                                  QString buildCompileCommandsJsonpath) {
+CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonpath,
+                                                             const QString buildCompileCommandsJsonpath) {
     if(QFileInfo(buildCompileCommandsJsonpath).exists() &&
                         QString::compare(QFileInfo(sourceCompileCommandsJsonpath).symLinkTarget(),
                         buildCompileCommandsJsonpath) == 0) {
 
-        QMessageBox::information(this, i18n("Already configured"),
-                                       i18n("The project is already configured"));
+        QMessageBox::information(this, i18n("Plugin already configured"),
+                                       i18n("The plugin is already configured for this project"));
         return CMakeRunStatus::Failure;
     }
     return CMakeRunStatus::Success;
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompileCommandsJsonpath) {
+CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompileCommandsJsonpath) {
     QProcess cmakeProcess;
     int cmakeProcessReturn;
 
@@ -121,8 +121,8 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(Q
     return CMakeRunStatus::Success;
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLink(QString sourceCompileCommandsJsonpath,
-                                                      QString buildCompileCommandsJsonpath) {
+CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLink(const QString sourceCompileCommandsJsonpath,
+                                                      const QString buildCompileCommandsJsonpath) {
     if(QFileInfo(sourceCompileCommandsJsonpath).exists()) {
         QFile(sourceCompileCommandsJsonpath).remove();
     }
