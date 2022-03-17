@@ -32,7 +32,7 @@ private:
     KTextEditor::MainWindow *m_mainWindow;
     CMakeRunStatus cmakeToolsCheckifConfigured(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
     CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompile_Commands_json_path);
-    CMakeRunStatus cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path, CMakeRunStatus createReturn);
+    CMakeRunStatus cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
 };
 
 #endif

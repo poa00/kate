@@ -122,11 +122,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(Q
 }
 
 CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLink(QString sourceCompileCommandsJsonpath,
-                                           QString buildCompileCommandsJsonpath, CMakeRunStatus createReturn) {
-    if(createReturn == CMakeRunStatus::Failure) {
-        return CMakeRunStatus::Failure;
-    }
-
+                                                      QString buildCompileCommandsJsonpath) {
     if(QFileInfo(sourceCompileCommandsJsonpath).exists()) {
         QFile(sourceCompileCommandsJsonpath).remove();
     }
@@ -156,7 +152,12 @@ void CMakeToolsWidget::cmakeToolsGenLink() {
     }
 
     createReturn = cmakeToolsVerifyAndCreateCommands_Compilejson(buildCompileCommandsJsonpath);
-    createReturn = cmakeToolsCreateLink(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath, createReturn);
+
+    if(createReturn == CMakeRunStatus::Failure) {
+        return;
+    }
+
+    createReturn = cmakeToolsCreateLink(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath);
 
     if(createReturn == CMakeRunStatus::Failure) {
         return;
