@@ -23,7 +23,6 @@ CMakeToolsWidget::
 ~CMakeToolsWidget() = default;
 
 void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v) {
-
     auto getDocumentPath = [&v]() {
         return v->document()->url().path();
     };
@@ -75,8 +74,7 @@ void CMakeToolsWidget::cmakeToolsSourceDir() {
 CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonpath,
                                                              const QString buildCompileCommandsJsonpath) {
     if(QFileInfo(buildCompileCommandsJsonpath).exists() &&
-                        QString::compare(QFileInfo(sourceCompileCommandsJsonpath).symLinkTarget(),
-                        buildCompileCommandsJsonpath) == 0) {
+       QFileInfo(sourceCompileCommandsJsonpath).symLinkTarget() == buildCompileCommandsJsonpath) {
 
         QMessageBox::information(this, i18n("Plugin already configured"),
                                        i18n("The plugin is already configured for this project"));
