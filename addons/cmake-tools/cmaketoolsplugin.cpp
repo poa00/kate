@@ -12,6 +12,8 @@
 #include <KXMLGUIFactory>
 #include <ktexteditor/codecompletioninterface.h>
 
+#include <QDebug>
+
 K_PLUGIN_FACTORY_WITH_JSON(CMakeToolsPluginFactory, "cmaketoolsplugin.json", registerPlugin<CMakeToolsPlugin>();)
 
 CMakeToolsPlugin::CMakeToolsPlugin(QObject *parent, const QList<QVariant> &)
