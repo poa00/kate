@@ -114,7 +114,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(Q
     if(!cmakeProcess.waitForFinished(-1) && cmakeProcessReturn != 0) {
         QMessageBox::warning(this, i18n("Warning"),
                                    i18n("Failed to generate the compile_commands.json file ") +
-                                   i18n((QStringLiteral("\nCMake return code: %1").arg(cmakeProcessReturn)).toStdString().c_str()));
+                                   i18n("\nCMake return code: %1").arg(cmakeProcessReturn));
         return CMakeRunStatus::Failure;
     }
 
