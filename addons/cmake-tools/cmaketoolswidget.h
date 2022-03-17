@@ -8,6 +8,11 @@
 
 #include "ui_cmaketoolswidget.h"
 
+enum class CMakeRunStatus {
+    Failure = 0,
+    Success = 1
+};
+
 class CMakeToolsWidget : public QWidget, public Ui::CMakeToolsWidget
 {
     Q_OBJECT
@@ -25,9 +30,9 @@ private Q_SLOTS:
 
 private:
     KTextEditor::MainWindow *m_mainWindow;
-    bool cmakeToolsCheckifConfigured(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
-    bool cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompile_Commands_json_path);
-    bool cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path, bool createReturn);
+    CMakeRunStatus cmakeToolsCheckifConfigured(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path);
+    CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(QString buildCompile_Commands_json_path);
+    CMakeRunStatus cmakeToolsCreateLink(QString sourceCompile_Commands_json_path, QString buildCompile_Commands_json_path, CMakeRunStatus createReturn);
 };
 
 #endif
