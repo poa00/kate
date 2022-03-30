@@ -2,11 +2,11 @@
 
 #include <KTextEditor/MainWindow>
 #include <QDebug>
-#include <QFileDialog>
 #include <QDir>
+#include <QFile>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QProcess>
-#include <QFile>
 
 CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget *parent)
     : QWidget(parent)
@@ -15,14 +15,13 @@ CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget 
     setupUi(this);
     connect(m_mainWindow, &KTextEditor::MainWindow::viewChanged, this, &CMakeToolsWidget::checkCMakeListsFolder);
     connect(selectBfolder, &QToolButton::clicked, this, &CMakeToolsWidget::cmakeToolsBuildDir);
-    connect(selectSfolder, &QToolButton::clicked, this, &CMakeToolsWidget::cmakeToolsSourceDir);
     connect(configCMakeToolsPlugin, &QPushButton::clicked, this, &CMakeToolsWidget::cmakeToolsGenLink);
 }
 
-CMakeToolsWidget::
-~CMakeToolsWidget() = default;
+CMakeToolsWidget::~CMakeToolsWidget() = default;
 
-void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v) {
+void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v)
+{
     auto getDocumentPath = [&v]() {
         return v->document()->url().path();
     };
@@ -30,7 +29,7 @@ void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v) {
     QString iterPath = getDocumentPath();
     iterPath.truncate(iterPath.lastIndexOf(QLatin1Char('/')));
 
-    if(!sourceDirectoryPath->text().isEmpty() && iterPath.contains(sourceDirectoryPath->text())){
+    if (!sourceDirectoryPath->text().isEmpty() && iterPath.contains(sourceDirectoryPath->text())) {
         return;
     }
 
@@ -39,21 +38,23 @@ void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v) {
 
     QString lastPath;
 
-    while(iterPath != comparePath) {
-        if(!QFileInfo(iterPath + QStringLiteral("/CMakeLists.txt")).exists()){
+    while (iterPath != comparePath) {
+        if (!QFileInfo(iterPath + QStringLiteral("/CMakeLists.txt")).exists()) {
             break;
         }
         lastPath = iterPath;
         iterPath.truncate(iterPath.lastIndexOf(QLatin1Char('/')));
     }
 
+    sourceDirectoryPath->setReadOnly(false);
     sourceDirectoryPath->setText(lastPath);
+    sourceDirectoryPath->setReadOnly(true);
     return;
 }
 
-void CMakeToolsWidget::cmakeToolsBuildDir() {
-    const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get build folder"),
-                                                                   QDir::homePath());
+void CMakeToolsWidget::cmakeToolsBuildDir()
+{
+    const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get build folder"), QDir::homePath());
     if (prefix.isEmpty()) {
         return;
     }
@@ -61,83 +62,69 @@ void CMakeToolsWidget::cmakeToolsBuildDir() {
     buildDirectoryPath->setText(prefix);
 }
 
-void CMakeToolsWidget::cmakeToolsSourceDir() {
-    const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get source folder"),
-                                                                   QDir::homePath());
-    if (prefix.isEmpty()) {
-        return;
-    }
-
-    sourceDirectoryPath->setText(prefix);
-}
-
-CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonpath,
-                                                             const QString buildCompileCommandsJsonpath) {
-    if(QFileInfo(buildCompileCommandsJsonpath).exists() &&
-       QFileInfo(sourceCompileCommandsJsonpath).symLinkTarget() == buildCompileCommandsJsonpath) {
-
-        QMessageBox::information(this, i18n("Plugin already configured"),
-                                       i18n("The plugin is already configured for this project"));
+CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonpath, const QString buildCompileCommandsJsonpath)
+{
+    if (QFileInfo(buildCompileCommandsJsonpath).exists() && QFileInfo(sourceCompileCommandsJsonpath).symLinkTarget() == buildCompileCommandsJsonpath) {
+        QMessageBox::information(this, i18n("Plugin already configured"), i18n("The plugin is already configured for this project"));
         return CMakeRunStatus::Failure;
     }
     return CMakeRunStatus::Success;
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompileCommandsJsonpath) {
+CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompileCommandsJsonpath)
+{
     QProcess cmakeProcess;
     int cmakeProcessReturn;
 
-    if(QFileInfo(buildCompileCommandsJsonpath).exists()){
+    if (QFileInfo(buildCompileCommandsJsonpath).exists()) {
         return CMakeRunStatus::Success;
     }
 
     QString buildCMakeCachetxtPath = buildDirectoryPath->text() + QStringLiteral("/CMakeCache.txt");
 
-    if(!QFileInfo(buildCMakeCachetxtPath).exists()) {
-        QMessageBox::warning(this, i18n("Warning"),
-                                   i18n("File CMakeCache.txt not present on folder ") +
-                                   i18n(buildDirectoryPath->text().toStdString().c_str()));
+    if (!QFileInfo(buildCMakeCachetxtPath).exists()) {
+        QMessageBox::warning(this,
+                             i18n("Warning"),
+                             i18n("File CMakeCache.txt not present on folder ") + i18n(buildDirectoryPath->text().toStdString().c_str()));
         return CMakeRunStatus::Failure;
     }
 
-    if(QMessageBox::Yes != QMessageBox::question(this, i18n("Generate file?"),
-                                                       i18n("Do you wish to generate the file compile_commands.json?"))) {
+    if (QMessageBox::Yes != QMessageBox::question(this, i18n("Generate file?"), i18n("Do you wish to generate the file compile_commands.json?"))) {
         return CMakeRunStatus::Failure;
     }
 
     cmakeProcess.setWorkingDirectory(buildDirectoryPath->text());
-    cmakeProcessReturn = cmakeProcess.execute(QStringLiteral("cmake"), QStringList{buildDirectoryPath->text(),
-                                                                       QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")});
+    cmakeProcessReturn =
+        cmakeProcess.execute(QStringLiteral("cmake"), QStringList{buildDirectoryPath->text(), QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")});
 
-    if(!cmakeProcess.waitForFinished(-1) && cmakeProcessReturn != 0) {
-        QMessageBox::warning(this, i18n("Warning"),
-                                   i18n("Failed to generate the compile_commands.json file ") +
-                                   i18n("\nCMake return code: %1").arg(cmakeProcessReturn));
+    if (!cmakeProcess.waitForFinished(-1) && cmakeProcessReturn != 0) {
+        QMessageBox::warning(this,
+                             i18n("Warning"),
+                             i18n("Failed to generate the compile_commands.json file ") + i18n("\nCMake return code: %1").arg(cmakeProcessReturn));
         return CMakeRunStatus::Failure;
     }
 
     return CMakeRunStatus::Success;
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLink(const QString sourceCompileCommandsJsonpath,
-                                                      const QString buildCompileCommandsJsonpath) {
-    if(QFileInfo(sourceCompileCommandsJsonpath).exists()) {
+CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLink(const QString sourceCompileCommandsJsonpath, const QString buildCompileCommandsJsonpath)
+{
+    if (QFileInfo(sourceCompileCommandsJsonpath).exists()) {
         QFile(sourceCompileCommandsJsonpath).remove();
     }
 
     QFile orig(buildCompileCommandsJsonpath);
 
-    if(!orig.link(sourceCompileCommandsJsonpath)) {
-        QMessageBox::warning(this, i18n("Warning"),
-                                   i18n("Failed to create link in ") +
-                                   i18n(sourceDirectoryPath->text().toStdString().c_str()));
+    if (!orig.link(sourceCompileCommandsJsonpath)) {
+        QMessageBox::warning(this, i18n("Warning"), i18n("Failed to create link in ") + i18n(sourceDirectoryPath->text().toStdString().c_str()));
         return CMakeRunStatus::Failure;
     }
 
     return CMakeRunStatus::Success;
 }
 
-void CMakeToolsWidget::cmakeToolsGenLink() {
+void CMakeToolsWidget::cmakeToolsGenLink()
+{
     const QString sourceCompileCommandsJsonpath = sourceDirectoryPath->text() + QStringLiteral("/compile_commands.json");
     const QString buildCompileCommandsJsonpath = buildDirectoryPath->text() + QStringLiteral("/compile_commands.json");
 
@@ -145,23 +132,23 @@ void CMakeToolsWidget::cmakeToolsGenLink() {
 
     createReturn = cmakeToolsCheckifConfigured(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath);
 
-    if(createReturn == CMakeRunStatus::Failure) {
+    if (createReturn == CMakeRunStatus::Failure) {
         return;
     }
 
     createReturn = cmakeToolsVerifyAndCreateCommands_Compilejson(buildCompileCommandsJsonpath);
 
-    if(createReturn == CMakeRunStatus::Failure) {
+    if (createReturn == CMakeRunStatus::Failure) {
         return;
     }
 
     createReturn = cmakeToolsCreateLink(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath);
 
-    if(createReturn == CMakeRunStatus::Failure) {
+    if (createReturn == CMakeRunStatus::Failure) {
         return;
     }
 
-    QMessageBox::information(this, i18n("Success"),
-                                   i18n("The plugin was configured successfully in ") +
-                                   i18n(sourceDirectoryPath->text().toStdString().c_str()));
+    QMessageBox::information(this,
+                             i18n("Success"),
+                             i18n("The plugin was configured successfully in ") + i18n(sourceDirectoryPath->text().toStdString().c_str()));
 }
