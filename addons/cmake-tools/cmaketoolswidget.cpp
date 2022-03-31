@@ -78,6 +78,15 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourc
         m_sourceToBuildMap[sourceDirectoryPath->text()] = buildDirectoryPath->text();
         return CMakeRunStatus::Failure;
     }
+
+    if (buildDirectoryPath->text().isEmpty() || sourceDirectoryPath->text().isEmpty()) {
+        QMessageBox::warning(this,
+                             i18n("Source or build folder path empty"),
+                             i18n("The source or build folder path was not selected, please select a valid path. The source path is automatically selected "
+                                  "when opening a file, the build path must be selected manually"));
+        return CMakeRunStatus::Failure;
+    }
+
     return CMakeRunStatus::Success;
 }
 
