@@ -49,11 +49,20 @@ void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v)
     sourceDirectoryPath->setReadOnly(false);
     sourceDirectoryPath->setText(lastPath);
     sourceDirectoryPath->setReadOnly(true);
+
+    if (!m_sourceToBuildMap.contains(lastPath)) {
+        return;
+    }
+
+    buildDirectoryPath->setText(m_sourceToBuildMap[lastPath]);
     return;
 }
 
 void CMakeToolsWidget::cmakeToolsBuildDir()
 {
+    if (sourceDirectoryPath->text().isEmpty()) {
+        return;
+    }
     const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get build folder"), QDir::homePath());
     if (prefix.isEmpty()) {
         return;
@@ -66,6 +75,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourc
 {
     if (QFileInfo(buildCompileCommandsJsonpath).exists() && QFileInfo(sourceCompileCommandsJsonpath).symLinkTarget() == buildCompileCommandsJsonpath) {
         QMessageBox::information(this, i18n("Plugin already configured"), i18n("The plugin is already configured for this project"));
+        m_sourceToBuildMap[sourceDirectoryPath->text()] = buildDirectoryPath->text();
         return CMakeRunStatus::Failure;
     }
     return CMakeRunStatus::Success;
@@ -151,4 +161,6 @@ void CMakeToolsWidget::cmakeToolsGenLink()
     QMessageBox::information(this,
                              i18n("Success"),
                              i18n("The plugin was configured successfully in ") + i18n(sourceDirectoryPath->text().toStdString().c_str()));
+
+    m_sourceToBuildMap[sourceDirectoryPath->text()] = buildDirectoryPath->text();
 }

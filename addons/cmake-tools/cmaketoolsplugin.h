@@ -6,8 +6,11 @@
 #ifndef KATE_CMAKE_TOOLS_PLUGIN_H
 #define KATE_CMAKE_TOOLS_PLUGIN_H
 
+#include <KConfigGroup>
+#include <KSharedConfig>
 #include <KTextEditor/Plugin>
 #include <KXMLGUIClient>
+#include <ktexteditor/sessionconfiginterface.h>
 
 #include <QVariant>
 #include <QWidget>
@@ -35,14 +38,18 @@ public:
 /**
  * Plugin view
  */
-class CMakeToolsPluginView : public QObject, public KXMLGUIClient
+class CMakeToolsPluginView : public QObject, public KXMLGUIClient, public KTextEditor::SessionConfigInterface
 {
     Q_OBJECT
+    Q_INTERFACES(KTextEditor::SessionConfigInterface)
 
 public:
     CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor::MainWindow *mainwindow);
 
     ~CMakeToolsPluginView() override;
+
+    void readSessionConfig(const KConfigGroup &config) override;
+    void writeSessionConfig(KConfigGroup &config) override;
 
 private Q_SLOTS:
     void onViewCreated(KTextEditor::View *v);

@@ -37,6 +37,8 @@ CMakeToolsPluginView::CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor
                                                 KTextEditor::MainWindow::Bottom,
                                                 QIcon::fromTheme(QStringLiteral("folder")),
                                                 i18n("CMake Tools")));
+
+    KConfigGroup config(KSharedConfig::openConfig(), "cmake-tools");
     m_widget = new CMakeToolsWidget(mainwindow, m_toolview.get());
 
     connect(m_mainWindow, &KTextEditor::MainWindow::viewCreated, this, &CMakeToolsPluginView::onViewCreated);
@@ -52,6 +54,19 @@ CMakeToolsPluginView::CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor
 CMakeToolsPluginView::~CMakeToolsPluginView()
 {
     m_mainWindow->guiFactory()->removeClient(this);
+}
+
+void CMakeToolsPluginView::readSessionConfig(const KConfigGroup &cg)
+{
+    m_widget->m_sourceToBuildMap = cg.entryMap();
+}
+
+void CMakeToolsPluginView::writeSessionConfig(KConfigGroup &cg)
+{
+    for (auto iter = m_widget->m_sourceToBuildMap.constBegin(); iter != m_widget->m_sourceToBuildMap.constEnd(); ++iter) {
+        cg.writeEntry(iter.key(), iter.value());
+    }
+    cg.sync();
 }
 
 void CMakeToolsPluginView::onViewCreated(KTextEditor::View *v)

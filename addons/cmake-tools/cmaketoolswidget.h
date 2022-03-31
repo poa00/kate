@@ -2,6 +2,7 @@
 #define KATE_CMAKE_TOOLS_WIDGET_H
 
 #include <KTextEditor/MainWindow>
+#include <QMap>
 #include <ktexteditor/view.h>
 
 #include <QWidget>
@@ -18,6 +19,8 @@ public:
     CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget *parent);
 
     ~CMakeToolsWidget() override;
+
+    QMap<QString, QString> m_sourceToBuildMap;
 
 private Q_SLOTS:
     void checkCMakeListsFolder(KTextEditor::View *v);
