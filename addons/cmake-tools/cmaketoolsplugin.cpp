@@ -63,7 +63,7 @@ void CMakeToolsPluginView::readSessionConfig(const KConfigGroup &cg)
 
 void CMakeToolsPluginView::writeSessionConfig(KConfigGroup &cg)
 {
-    QMap<QString, QString> tempQMap = m_widget->getSourceToBuildMap();
+    const QMap<QString, QString> tempQMap = m_widget->getSourceToBuildMap();
 
     for (auto iter = tempQMap.constBegin(); iter != tempQMap.constEnd(); ++iter) {
         cg.writeEntry(iter.key(), iter.value());
