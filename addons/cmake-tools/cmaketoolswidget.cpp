@@ -20,12 +20,12 @@ CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget 
 
 CMakeToolsWidget::~CMakeToolsWidget() = default;
 
-void CMakeToolsWidget::setSourceToBuildMap(QMap<QString, QString> readedQMap)
+void CMakeToolsWidget::setSourceToBuildMap(const QMap<QString, QString> readedQMap)
 {
     m_sourceToBuildMap = readedQMap;
 }
 
-QMap<QString, QString> CMakeToolsWidget::getSourceToBuildMap()
+const QMap<QString, QString> CMakeToolsWidget::getSourceToBuildMap()
 {
     return m_sourceToBuildMap;
 }

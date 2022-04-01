@@ -20,8 +20,8 @@ public:
 
     ~CMakeToolsWidget() override;
 
-    void setSourceToBuildMap(QMap<QString, QString> readedQMap);
-    QMap<QString, QString> getSourceToBuildMap();
+    void setSourceToBuildMap(const QMap<QString, QString> readedQMap);
+    const QMap<QString, QString> getSourceToBuildMap();
 
 private Q_SLOTS:
     void checkCMakeListsFolder(KTextEditor::View *v);
