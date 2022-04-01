@@ -20,7 +20,8 @@ public:
 
     ~CMakeToolsWidget() override;
 
-    QMap<QString, QString> m_sourceToBuildMap;
+    void setSourceToBuildMap(QMap<QString, QString> readedQMap);
+    QMap<QString, QString> getSourceToBuildMap();
 
 private Q_SLOTS:
     void checkCMakeListsFolder(KTextEditor::View *v);
@@ -32,6 +33,7 @@ private:
     CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
     CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompile_Commands_json_path);
     CMakeRunStatus cmakeToolsCreateLink(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
+    QMap<QString, QString> m_sourceToBuildMap;
 };
 
 #endif
