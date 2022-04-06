@@ -24,8 +24,8 @@ public:
     const QMap<QString, QString> getSourceToBuildMap();
 
 private Q_SLOTS:
-    void checkCMakeListsFolder(KTextEditor::View *v);
-    void cmakeToolsBuildDir();
+    void guessCMakeListsFolder(KTextEditor::View *v);
+    void cmakeToolsSelectBuildFolderButton();
     void cmakeToolsGenLink();
 
 private:
@@ -33,7 +33,8 @@ private:
     void getSourceDirFromCMakeCache();
     CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
     CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompile_Commands_json_path);
-    CMakeRunStatus cmakeToolsCreateLink(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
+    CMakeRunStatus cmakeToolsCreateLinkToCommands_CompilejsonOnSourceFolder(const QString sourceCompile_Commands_json_path,
+                                                                            const QString buildCompile_Commands_json_path);
     QMap<QString, QString> m_sourceToBuildMap;
 };
 

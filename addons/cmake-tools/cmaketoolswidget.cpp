@@ -13,8 +13,9 @@ CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget 
     , m_mainWindow(mainwindow)
 {
     setupUi(this);
-    connect(m_mainWindow, &KTextEditor::MainWindow::viewChanged, this, &CMakeToolsWidget::checkCMakeListsFolder);
-    connect(selectBfolder, &QToolButton::clicked, this, &CMakeToolsWidget::cmakeToolsBuildDir);
+    sourceDirectoryPath->setReadOnly(true);
+    connect(m_mainWindow, &KTextEditor::MainWindow::viewChanged, this, &CMakeToolsWidget::guessCMakeListsFolder);
+    connect(selectBuildFolderButton, &QToolButton::clicked, this, &CMakeToolsWidget::cmakeToolsSelectBuildFolderButton);
     connect(configCMakeToolsPlugin, &QPushButton::clicked, this, &CMakeToolsWidget::cmakeToolsGenLink);
 }
 
@@ -30,71 +31,72 @@ const QMap<QString, QString> CMakeToolsWidget::getSourceToBuildMap()
     return m_sourceToBuildMap;
 }
 
-void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v)
+void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
 {
-    auto getDocumentPath = [&v]() {
-        return v->document()->url().path();
-    };
-
-    QString iterPath = getDocumentPath();
-    iterPath.truncate(iterPath.lastIndexOf(QLatin1Char('/')));
-
-    if (!sourceDirectoryPath->text().isEmpty() && iterPath.contains(sourceDirectoryPath->text())) {
+    if (v->document()->url().isEmpty()) {
         return;
     }
 
-    QString comparePath = getDocumentPath();
-    comparePath.truncate(comparePath.lastIndexOf(QLatin1Char('/'), 0));
+    QString currentViewDocumentPath = v->document()->url().path();
 
-    QString lastPath;
+    currentViewDocumentPath.truncate(currentViewDocumentPath.lastIndexOf(QLatin1Char('/')));
 
-    while (iterPath != comparePath) {
-        if (!QFileInfo(iterPath + QStringLiteral("/CMakeLists.txt")).exists()) {
+    if (!sourceDirectoryPath->text().isEmpty() && currentViewDocumentPath.contains(sourceDirectoryPath->text())) {
+        return;
+    }
+
+    QDir iterateUntilLastCMakeLists = QDir(currentViewDocumentPath);
+
+    QDir previousDirectory;
+
+    while (iterateUntilLastCMakeLists.exists(QStringLiteral("CMakeLists.txt"))) {
+        previousDirectory = iterateUntilLastCMakeLists;
+        if (!iterateUntilLastCMakeLists.cdUp()) {
             break;
         }
-        lastPath = iterPath;
-        iterPath.truncate(iterPath.lastIndexOf(QLatin1Char('/')));
     }
 
+    QString guessedPath = previousDirectory.absolutePath();
+
     sourceDirectoryPath->setReadOnly(false);
-    sourceDirectoryPath->setText(lastPath);
+    sourceDirectoryPath->setText(guessedPath);
     sourceDirectoryPath->setReadOnly(true);
 
-    if (!m_sourceToBuildMap.contains(lastPath)) {
+    if (!m_sourceToBuildMap.contains(guessedPath)) {
         return;
     }
 
-    buildDirectoryPath->setText(m_sourceToBuildMap[lastPath]);
+    buildDirectoryPath->setText(m_sourceToBuildMap[guessedPath]);
     return;
 }
 
-void CMakeToolsWidget::getSourceDirFromCMakeCache(){
+void CMakeToolsWidget::getSourceDirFromCMakeCache()
+{
     QFile openCMakeCache(buildDirectoryPath->text() + QStringLiteral("/CMakeCache.txt"));
     openCMakeCache.open(QIODevice::ReadWrite);
-    QTextStream in (&openCMakeCache);
-    const QString contents = in.readAll();
+    QTextStream in(&openCMakeCache);
+    const QString openedCMakeCacheContents = in.readAll();
     const QString sourcePrefix = QStringLiteral("SOURCE_DIR:STATIC=");
-    const int startSourcePathIndex = contents.indexOf(sourcePrefix);
-    const int endSourcePathIndex = contents.indexOf(QStringLiteral("\n"), startSourcePathIndex);
-    QString sourcePath = QStringLiteral("");
-    for(int i = startSourcePathIndex + 18; i!=endSourcePathIndex; i++){
-        sourcePath += contents[i];
+    const int startSourceFolderPathIndexOnContents = openedCMakeCacheContents.indexOf(sourcePrefix);
+    const int endSourceFolderPathIndexOnContents = openedCMakeCacheContents.indexOf(QStringLiteral("\n"), startSourceFolderPathIndexOnContents);
+    QString sourceFolderPath = QStringLiteral("");
+    for (int i = startSourceFolderPathIndexOnContents + 18; i != endSourceFolderPathIndexOnContents; i++) {
+        sourceFolderPath += openedCMakeCacheContents[i];
     }
     openCMakeCache.close();
 }
 
-void CMakeToolsWidget::cmakeToolsBuildDir()
+void CMakeToolsWidget::cmakeToolsSelectBuildFolderButton()
 {
     if (sourceDirectoryPath->text().isEmpty()) {
         return;
     }
-    const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get build folder"),
-                                                             sourceDirectoryPath->text(), QFileDialog::ShowDirsOnly);
-    if (prefix.isEmpty()) {
+    const QString selectedBuildPath = QFileDialog::getExistingDirectory(this, i18n("Get build folder"), sourceDirectoryPath->text(), QFileDialog::ShowDirsOnly);
+    if (selectedBuildPath.isEmpty()) {
         return;
     }
 
-    buildDirectoryPath->setText(prefix);
+    buildDirectoryPath->setText(selectedBuildPath);
 }
 
 CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonpath, const QString buildCompileCommandsJsonpath)
@@ -152,7 +154,8 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(c
     return CMakeRunStatus::Success;
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLink(const QString sourceCompileCommandsJsonpath, const QString buildCompileCommandsJsonpath)
+CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLinkToCommands_CompilejsonOnSourceFolder(const QString sourceCompileCommandsJsonpath,
+                                                                                          const QString buildCompileCommandsJsonpath)
 {
     if (QFileInfo(sourceCompileCommandsJsonpath).exists()) {
         QFile(sourceCompileCommandsJsonpath).remove();
@@ -187,7 +190,7 @@ void CMakeToolsWidget::cmakeToolsGenLink()
         return;
     }
 
-    createReturn = cmakeToolsCreateLink(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath);
+    createReturn = cmakeToolsCreateLinkToCommands_CompilejsonOnSourceFolder(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath);
 
     if (createReturn == CMakeRunStatus::Failure) {
         return;

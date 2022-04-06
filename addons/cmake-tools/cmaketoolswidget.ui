@@ -68,7 +68,7 @@
       <widget class="QLineEdit" name="buildDirectoryPath"/>
      </item>
      <item>
-      <widget class="QToolButton" name="selectBfolder">
+      <widget class="QToolButton" name="selectBuildFolderButton">
        <property name="text">
         <string>...</string>
        </property>
