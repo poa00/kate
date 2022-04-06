@@ -68,12 +68,28 @@ void CMakeToolsWidget::checkCMakeListsFolder(KTextEditor::View *v)
     return;
 }
 
+void CMakeToolsWidget::getSourceDirFromCMakeCache(){
+    QFile openCMakeCache(buildDirectoryPath->text() + QStringLiteral("/CMakeCache.txt"));
+    openCMakeCache.open(QIODevice::ReadWrite);
+    QTextStream in (&openCMakeCache);
+    const QString contents = in.readAll();
+    const QString sourcePrefix = QStringLiteral("SOURCE_DIR:STATIC=");
+    const int startSourcePathIndex = contents.indexOf(sourcePrefix);
+    const int endSourcePathIndex = contents.indexOf(QStringLiteral("\n"), startSourcePathIndex);
+    QString sourcePath = QStringLiteral("");
+    for(int i = startSourcePathIndex + 18; i!=endSourcePathIndex; i++){
+        sourcePath += contents[i];
+    }
+    openCMakeCache.close();
+}
+
 void CMakeToolsWidget::cmakeToolsBuildDir()
 {
     if (sourceDirectoryPath->text().isEmpty()) {
         return;
     }
-    const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get build folder"), QDir::homePath());
+    const QString prefix = QFileDialog::getExistingDirectory(this, i18n("Get build folder"),
+                                                             sourceDirectoryPath->text(), QFileDialog::ShowDirsOnly);
     if (prefix.isEmpty()) {
         return;
     }
