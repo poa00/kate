@@ -16,7 +16,7 @@ CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget 
     sourceDirectoryPath->setReadOnly(true);
     connect(m_mainWindow, &KTextEditor::MainWindow::viewChanged, this, &CMakeToolsWidget::guessCMakeListsFolder);
     connect(selectBuildFolderButton, &QToolButton::clicked, this, &CMakeToolsWidget::cmakeToolsSelectBuildFolderButton);
-    connect(configCMakeToolsPlugin, &QPushButton::clicked, this, &CMakeToolsWidget::cmakeToolsGenLink);
+    connect(configureCMakeToolsButton, &QPushButton::clicked, this, &CMakeToolsWidget::cmakeToolsConfigureButton);
 }
 
 CMakeToolsWidget::~CMakeToolsWidget() = default;
@@ -171,7 +171,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLinkToCommands_CompilejsonOnSou
     return CMakeRunStatus::Success;
 }
 
-void CMakeToolsWidget::cmakeToolsGenLink()
+void CMakeToolsWidget::cmakeToolsConfigureButton()
 {
     const QString sourceCompileCommandsJsonpath = sourceDirectoryPath->text() + QStringLiteral("/compile_commands.json");
     const QString buildCompileCommandsJsonpath = buildDirectoryPath->text() + QStringLiteral("/compile_commands.json");

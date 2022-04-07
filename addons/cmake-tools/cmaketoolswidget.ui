@@ -86,7 +86,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QPushButton" name="configCMakeToolsPlugin">
+      <widget class="QPushButton" name="configureCMakeToolsButton">
        <property name="text">
         <string>Configure CMake Tools plugin</string>
        </property>

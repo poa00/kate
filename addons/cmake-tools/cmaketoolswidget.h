@@ -26,7 +26,7 @@ public:
 private Q_SLOTS:
     void guessCMakeListsFolder(KTextEditor::View *v);
     void cmakeToolsSelectBuildFolderButton();
-    void cmakeToolsGenLink();
+    void cmakeToolsConfigureButton();
 
 private:
     KTextEditor::MainWindow *m_mainWindow;
