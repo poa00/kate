@@ -31,6 +31,15 @@ const QMap<QString, QString> CMakeToolsWidget::getSourceToBuildMap()
     return m_sourceToBuildMap;
 }
 
+void CMakeToolsWidget::loadWidgetSessionFromSourceToBuildMap(const QString sourcePath)
+{
+    buildDirectoryPath->setText(m_sourceToBuildMap[sourcePath]);
+}
+void CMakeToolsWidget::saveWidgetSessionOnSourceToBuildMap(const QString sourcePath, const QString buildPath)
+{
+    m_sourceToBuildMap[sourcePath] = buildPath;
+}
+
 void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
 {
     if (v->document()->url().isEmpty()) {
@@ -66,7 +75,7 @@ void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
         return;
     }
 
-    buildDirectoryPath->setText(m_sourceToBuildMap[guessedPath]);
+    loadWidgetSessionFromSourceToBuildMap(guessedPath);
     return;
 }
 
@@ -103,7 +112,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourc
 {
     if (QFileInfo(buildCompileCommandsJsonpath).exists() && QFileInfo(sourceCompileCommandsJsonpath).symLinkTarget() == buildCompileCommandsJsonpath) {
         QMessageBox::information(this, i18n("Plugin already configured"), i18n("The plugin is already configured for this project"));
-        m_sourceToBuildMap[sourceDirectoryPath->text()] = buildDirectoryPath->text();
+        saveWidgetSessionOnSourceToBuildMap(sourceDirectoryPath->text(), buildDirectoryPath->text());
         return CMakeRunStatus::Failure;
     }
 
@@ -200,5 +209,5 @@ void CMakeToolsWidget::cmakeToolsConfigureButton()
                              i18n("Success"),
                              i18n("The plugin was configured successfully in ") + i18n(sourceDirectoryPath->text().toStdString().c_str()));
 
-    m_sourceToBuildMap[sourceDirectoryPath->text()] = buildDirectoryPath->text();
+    saveWidgetSessionOnSourceToBuildMap(sourceDirectoryPath->text(), buildDirectoryPath->text());
 }

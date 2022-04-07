@@ -30,6 +30,8 @@ private Q_SLOTS:
 
 private:
     KTextEditor::MainWindow *m_mainWindow;
+    void loadWidgetSessionFromSourceToBuildMap(QString sourcePath);
+    void saveWidgetSessionOnSourceToBuildMap(QString sourcePath, QString buildPath);
     void getSourceDirFromCMakeCache();
     CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
     CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompile_Commands_json_path);
