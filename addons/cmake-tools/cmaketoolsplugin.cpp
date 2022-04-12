@@ -58,12 +58,18 @@ CMakeToolsPluginView::~CMakeToolsPluginView()
 
 void CMakeToolsPluginView::readSessionConfig(const KConfigGroup &cg)
 {
-    m_widget->setSourceToBuildMap(cg.entryMap());
+    QMap<QString, QStringList> tempSourceToBuildMap;
+    QStringList tempKeyList = cg.keyList();
+
+    for (int i = 0; i < tempKeyList.size(); i++) {
+        tempSourceToBuildMap[tempKeyList[i]] = cg.readEntry(tempKeyList[i], QStringList());
+    }
+    m_widget->setSourceToBuildMap(tempSourceToBuildMap);
 }
 
 void CMakeToolsPluginView::writeSessionConfig(KConfigGroup &cg)
 {
-    const QMap<QString, QString> tempQMap = m_widget->getSourceToBuildMap();
+    const QMap<QString, QStringList> tempQMap = m_widget->getSourceToBuildMap();
 
     for (auto iter = tempQMap.constBegin(); iter != tempQMap.constEnd(); ++iter) {
         cg.writeEntry(iter.key(), iter.value());

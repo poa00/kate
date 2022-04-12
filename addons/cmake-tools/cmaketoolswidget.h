@@ -20,8 +20,8 @@ public:
 
     ~CMakeToolsWidget() override;
 
-    void setSourceToBuildMap(const QMap<QString, QString> readedQMap);
-    const QMap<QString, QString> getSourceToBuildMap();
+    void setSourceToBuildMap(const QMap<QString, QStringList> readedQMap);
+    const QMap<QString, QStringList> getSourceToBuildMap();
 
 private Q_SLOTS:
     void guessCMakeListsFolder(KTextEditor::View *v);
@@ -32,12 +32,13 @@ private:
     KTextEditor::MainWindow *m_mainWindow;
     void loadWidgetSessionFromSourceToBuildMap(const QString sourcePath);
     void saveWidgetSessionOnSourceToBuildMap(const QString sourcePath, const QString buildPath);
-    void getSourceDirFromCMakeCache();
+    CMakeRunStatus noCMakeCachetxtERROR();
+    QString getSourceDirFromCMakeCache();
     CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
     CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompile_Commands_json_path);
     CMakeRunStatus cmakeToolsCreateLinkToCommands_CompilejsonOnSourceFolder(const QString sourceCompile_Commands_json_path,
                                                                             const QString buildCompile_Commands_json_path);
-    QMap<QString, QString> m_sourceToBuildMap;
+    QMap<QString, QStringList> m_sourceToBuildMap;
 };
 
 #endif
