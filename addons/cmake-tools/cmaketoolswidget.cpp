@@ -135,9 +135,9 @@ void CMakeToolsWidget::cmakeToolsSelectBuildFolderButton()
     loadWidgetSessionFromSourceToBuildMap(sourceDirectoryPath->text());
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonpath, const QString buildCompileCommandsJsonpath)
+CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath)
 {
-    if (QFileInfo(buildCompileCommandsJsonpath).exists() && QFileInfo(sourceCompileCommandsJsonpath).symLinkTarget() == buildCompileCommandsJsonpath) {
+    if (QFileInfo(buildCompileCommandsJsonPath).exists() && QFileInfo(sourceCompileCommandsJsonPath).symLinkTarget() == buildCompileCommandsJsonPath) {
         QMessageBox::information(this, i18n("Plugin already configured"), i18n("The plugin is already configured for this project"));
         saveWidgetSessionOnSourceToBuildMap(sourceDirectoryPath->text(), buildDirectoryPath->lineEdit()->text());
         return CMakeRunStatus::Failure;
@@ -154,7 +154,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourc
     return CMakeRunStatus::Success;
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompileCommandsJsonpath)
+CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommandsCompileJson(const QString buildCompileCommandsJsonPath)
 {
     QProcess cmakeProcess;
     int cmakeProcessReturn;
@@ -163,7 +163,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(c
         return CMakeRunStatus::Failure;
     }
 
-    if (QFileInfo(buildCompileCommandsJsonpath).exists()) {
+    if (QFileInfo(buildCompileCommandsJsonPath).exists()) {
         return CMakeRunStatus::Success;
     }
 
@@ -185,14 +185,14 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommands_Compilejson(c
     return CMakeRunStatus::Success;
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLinkToCommands_CompilejsonOnSourceFolder(const QString sourceCompileCommandsJsonpath,
-                                                                                          const QString buildCompileCommandsJsonpath)
+CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(const QString sourceCompileCommandsJsonpath,
+                                                                                         const QString buildCompileCommandsJsonPath)
 {
     if (QFileInfo(sourceCompileCommandsJsonpath).exists()) {
         QFile(sourceCompileCommandsJsonpath).remove();
     }
 
-    QFile orig(buildCompileCommandsJsonpath);
+    QFile orig(buildCompileCommandsJsonPath);
 
     if (!orig.link(sourceCompileCommandsJsonpath)) {
         QMessageBox::warning(this, i18n("Warning"), i18n("Failed to create link in ") + i18n(sourceDirectoryPath->text().toStdString().c_str()));
@@ -205,23 +205,23 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLinkToCommands_CompilejsonOnSou
 void CMakeToolsWidget::cmakeToolsConfigureButton()
 {
     const QString sourceCompileCommandsJsonpath = sourceDirectoryPath->text() + QStringLiteral("/compile_commands.json");
-    const QString buildCompileCommandsJsonpath = buildDirectoryPath->lineEdit()->text() + QStringLiteral("/compile_commands.json");
+    const QString buildCompileCommandsJsonPath = buildDirectoryPath->lineEdit()->text() + QStringLiteral("/compile_commands.json");
 
     CMakeRunStatus createReturn;
 
-    createReturn = cmakeToolsCheckifConfigured(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath);
+    createReturn = cmakeToolsCheckifConfigured(sourceCompileCommandsJsonpath, buildCompileCommandsJsonPath);
 
     if (createReturn == CMakeRunStatus::Failure) {
         return;
     }
 
-    createReturn = cmakeToolsVerifyAndCreateCommands_Compilejson(buildCompileCommandsJsonpath);
+    createReturn = cmakeToolsVerifyAndCreateCommandsCompileJson(buildCompileCommandsJsonPath);
 
     if (createReturn == CMakeRunStatus::Failure) {
         return;
     }
 
-    createReturn = cmakeToolsCreateLinkToCommands_CompilejsonOnSourceFolder(sourceCompileCommandsJsonpath, buildCompileCommandsJsonpath);
+    createReturn = cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(sourceCompileCommandsJsonpath, buildCompileCommandsJsonPath);
 
     if (createReturn == CMakeRunStatus::Failure) {
         return;

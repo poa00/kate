@@ -34,10 +34,10 @@ private:
     void saveWidgetSessionOnSourceToBuildMap(const QString sourcePath, const QString buildPath);
     CMakeRunStatus noCMakeCachetxtERROR();
     QString getSourceDirFromCMakeCache();
-    CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompile_Commands_json_path, const QString buildCompile_Commands_json_path);
-    CMakeRunStatus cmakeToolsVerifyAndCreateCommands_Compilejson(const QString buildCompile_Commands_json_path);
-    CMakeRunStatus cmakeToolsCreateLinkToCommands_CompilejsonOnSourceFolder(const QString sourceCompile_Commands_json_path,
-                                                                            const QString buildCompile_Commands_json_path);
+    CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath);
+    CMakeRunStatus cmakeToolsVerifyAndCreateCommandsCompileJson(const QString buildCompileCommandsJsonPath);
+    CMakeRunStatus cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(const QString sourceCompileCommandsJsonPath,
+                                                                           const QString buildCompileCommandsJsonPath);
     QMap<QString, QStringList> m_sourceToBuildMap;
 };
 
