@@ -126,7 +126,16 @@ QString CMakeToolsWidget::getSourceDirFromCMakeCache()
 
 void CMakeToolsWidget::cmakeToolsSelectBuildFolderButton()
 {
-    const QString selectedBuildPath = QFileDialog::getExistingDirectory(this, i18n("Get build folder"), QDir::homePath(), QFileDialog::ShowDirsOnly);
+    QString startingDir = QDir::homePath();
+    if(sourceDirectoryPath->text() != QStringLiteral("Source")){
+        startingDir =  sourceDirectoryPath->text();
+    }
+
+    const QString selectedBuildPath = QFileDialog::getExistingDirectory(this, i18n("Get build folder"), startingDir, QFileDialog::ShowDirsOnly);
+
+    if(selectedBuildPath.isEmpty()){
+        return;
+    }
 
     buildDirectoryPath->lineEdit()->setText(selectedBuildPath);
     sourceDirectoryPath->setText(getSourceDirFromCMakeCache());
