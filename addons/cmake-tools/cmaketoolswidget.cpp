@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QProcess>
 
@@ -13,7 +14,6 @@ CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget 
     , m_mainWindow(mainwindow)
 {
     setupUi(this);
-    sourceDirectoryPath->setReadOnly(true);
     connect(m_mainWindow, &KTextEditor::MainWindow::viewChanged, this, &CMakeToolsWidget::guessCMakeListsFolder);
     connect(selectBuildFolderButton, &QToolButton::clicked, this, &CMakeToolsWidget::cmakeToolsSelectBuildFolderButton);
     connect(configureCMakeToolsButton, &QPushButton::clicked, this, &CMakeToolsWidget::cmakeToolsConfigureButton);
@@ -74,9 +74,7 @@ void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
 
     QString guessedPath = previousDirectory.absolutePath();
 
-    sourceDirectoryPath->setReadOnly(false);
     sourceDirectoryPath->setText(guessedPath);
-    sourceDirectoryPath->setReadOnly(true);
 
     if (!m_sourceToBuildMap.contains(guessedPath)) {
         return;
