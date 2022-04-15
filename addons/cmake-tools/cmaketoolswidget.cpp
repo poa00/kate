@@ -75,6 +75,7 @@ void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
     QString guessedPath = previousDirectory.absolutePath();
 
     sourceDirectoryPath->setText(guessedPath);
+    searchForBuildDirectoriesInsideSource();
 
     if (!m_sourceToBuildMap.contains(guessedPath)) {
         return;
@@ -84,11 +85,14 @@ void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
     return;
 }
 
-CMakeRunStatus CMakeToolsWidget::noCMakeCachetxtERROR()
+CMakeRunStatus CMakeToolsWidget::checkForCMakeCachetxt(const QString buildPathToCheck, const bool errorMessage)
 {
-    QString buildCMakeCachetxtPath = buildDirectoryPath->lineEdit()->text() + QStringLiteral("/CMakeCache.txt");
+    QString buildCMakeCachetxtPath = buildPathToCheck + QStringLiteral("/CMakeCache.txt");
 
     if (!QFileInfo(buildCMakeCachetxtPath).exists()) {
+        if (!errorMessage) {
+            return CMakeRunStatus::Failure;
+        }
         QMessageBox::warning(this, i18n("Warning"), i18n("Folder not selected or the file CMakeCache.txt is not present on the folder selected"));
         return CMakeRunStatus::Failure;
     }
@@ -98,7 +102,7 @@ CMakeRunStatus CMakeToolsWidget::noCMakeCachetxtERROR()
 
 QString CMakeToolsWidget::getSourceDirFromCMakeCache()
 {
-    if (noCMakeCachetxtERROR() == CMakeRunStatus::Failure) {
+    if (checkForCMakeCachetxt(buildDirectoryPath->lineEdit()->text()) == CMakeRunStatus::Failure) {
         return QStringLiteral("");
     }
 
@@ -124,21 +128,35 @@ QString CMakeToolsWidget::getSourceDirFromCMakeCache()
     return sourceFolderPath;
 }
 
+void CMakeToolsWidget::searchForBuildDirectoriesInsideSource()
+{
+    QStringListIterator possibleBuildPaths(QDir(sourceDirectoryPath->text()).entryList(QDir::Dirs | QDir::NoDotAndDotDot));
+
+    while (possibleBuildPaths.hasNext()) {
+        QString possibleBuildPath = possibleBuildPaths.next();
+        if (checkForCMakeCachetxt(possibleBuildPath, false) == CMakeRunStatus::Failure) {
+            continue;
+        }
+        saveWidgetSessionOnSourceToBuildMap(sourceDirectoryPath->text(), possibleBuildPath);
+    }
+}
+
 void CMakeToolsWidget::cmakeToolsSelectBuildFolderButton()
 {
     QString startingDir = QDir::homePath();
-    if(sourceDirectoryPath->text() != QStringLiteral("Source")){
-        startingDir =  sourceDirectoryPath->text();
+    if (sourceDirectoryPath->text() != QStringLiteral("Source")) {
+        startingDir = sourceDirectoryPath->text();
     }
 
     const QString selectedBuildPath = QFileDialog::getExistingDirectory(this, i18n("Get build folder"), startingDir, QFileDialog::ShowDirsOnly);
 
-    if(selectedBuildPath.isEmpty()){
+    if (selectedBuildPath.isEmpty()) {
         return;
     }
 
     buildDirectoryPath->lineEdit()->setText(selectedBuildPath);
     sourceDirectoryPath->setText(getSourceDirFromCMakeCache());
+    searchForBuildDirectoriesInsideSource();
     loadWidgetSessionFromSourceToBuildMap(sourceDirectoryPath->text());
 }
 
@@ -166,7 +184,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommandsCompileJson(co
     QProcess cmakeProcess;
     int cmakeProcessReturn;
 
-    if (noCMakeCachetxtERROR() == CMakeRunStatus::Failure) {
+    if (checkForCMakeCachetxt(buildDirectoryPath->lineEdit()->text()) == CMakeRunStatus::Failure) {
         return CMakeRunStatus::Failure;
     }
 

@@ -32,8 +32,9 @@ private:
     KTextEditor::MainWindow *m_mainWindow;
     void loadWidgetSessionFromSourceToBuildMap(const QString sourcePath);
     void saveWidgetSessionOnSourceToBuildMap(const QString sourcePath, const QString buildPath);
-    CMakeRunStatus noCMakeCachetxtERROR();
+    CMakeRunStatus checkForCMakeCachetxt(const QString buildPathToCheck, const bool errorMessage = true);
     QString getSourceDirFromCMakeCache();
+    void searchForBuildDirectoriesInsideSource();
     CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath);
     CMakeRunStatus cmakeToolsVerifyAndCreateCommandsCompileJson(const QString buildCompileCommandsJsonPath);
     CMakeRunStatus cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(const QString sourceCompileCommandsJsonPath,
