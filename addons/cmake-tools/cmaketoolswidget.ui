@@ -85,7 +85,7 @@
      <item>
       <widget class="QPushButton" name="configureCMakeToolsButton">
        <property name="text">
-        <string>Configure CMake Tools plugin</string>
+        <string>Configure</string>
        </property>
       </widget>
      </item>

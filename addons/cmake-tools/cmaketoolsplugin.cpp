@@ -36,7 +36,7 @@ CMakeToolsPluginView::CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor
                                                 QStringLiteral("kate_private_plugin_katecmaketoolsplugin"),
                                                 KTextEditor::MainWindow::Bottom,
                                                 QIcon::fromTheme(QStringLiteral("folder")),
-                                                i18n("CMake Tools")));
+                                                i18n("CMake")));
 
     KConfigGroup config(KSharedConfig::openConfig(), "cmake-tools");
     m_widget = new CMakeToolsWidget(mainwindow, m_toolview.get());
