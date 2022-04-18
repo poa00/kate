@@ -50,8 +50,12 @@ void CMakeToolsWidget::saveWidgetSessionOnSourceToBuildMap(const QString sourceP
 void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
 {
     if (v->document()->url().isEmpty()) {
+        sourceLabel->setVisible(false);
+        sourceDirectoryPath->setVisible(false);
         return;
     }
+    sourceLabel->setVisible(true);
+    sourceDirectoryPath->setVisible(true);
 
     QString currentViewDocumentPath = v->document()->url().path();
 
@@ -134,6 +138,8 @@ void CMakeToolsWidget::searchForBuildDirectoriesInsideSource()
 
     while (possibleBuildPaths.hasNext()) {
         QString possibleBuildPath = possibleBuildPaths.next();
+        possibleBuildPath = sourceDirectoryPath->text() + QStringLiteral("/") + possibleBuildPath;
+
         if (checkForCMakeCachetxt(possibleBuildPath, false) == CMakeRunStatus::Failure) {
             continue;
         }
