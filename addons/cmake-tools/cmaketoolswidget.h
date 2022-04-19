@@ -35,10 +35,11 @@ private:
     CMakeRunStatus checkForCMakeCachetxt(const QString buildPathToCheck, const bool errorMessage = true);
     QString getSourceDirFromCMakeCache();
     void searchForBuildDirectoriesInsideSource();
-    CMakeRunStatus cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath);
+    CMakeRunStatus cmakeToolsCheckifConfiguredOrImproper(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath);
     CMakeRunStatus cmakeToolsVerifyAndCreateCommandsCompileJson(const QString buildCompileCommandsJsonPath);
     CMakeRunStatus cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(const QString sourceCompileCommandsJsonPath,
-                                                                           const QString buildCompileCommandsJsonPath);
+                                                                           const QString buildCompileCommandsJsonPath,
+                                                                           const bool isChecked);
     QMap<QString, QStringList> m_sourceToBuildMap;
 };
 

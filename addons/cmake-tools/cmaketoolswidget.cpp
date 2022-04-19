@@ -166,7 +166,7 @@ void CMakeToolsWidget::cmakeToolsSelectBuildFolderButton()
     loadWidgetSessionFromSourceToBuildMap(sourceDirectoryPath->text());
 }
 
-CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath)
+CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfiguredOrImproper(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath)
 {
     if (QFileInfo(buildCompileCommandsJsonPath).exists() && QFileInfo(sourceCompileCommandsJsonPath).symLinkTarget() == buildCompileCommandsJsonPath) {
         QMessageBox::information(this, i18n("Plugin already configured"), i18n("The plugin is already configured for this project"));
@@ -178,7 +178,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourc
         QMessageBox::warning(this,
                              i18n("Source or build folder path empty"),
                              i18n("The source or build folder path was not selected, please select a valid path. The source path is automatically selected "
-                                  "when opening a file, the build path must be selected manually"));
+                                  "when opening a file, the build path can be selected manually"));
         return CMakeRunStatus::Failure;
     }
 
@@ -188,7 +188,9 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfigured(const QString sourc
 CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommandsCompileJson(const QString buildCompileCommandsJsonPath)
 {
     QProcess cmakeProcess;
-    int cmakeProcessReturn;
+    int cmakeProcessReturn = 1;
+    bool cmakeProcessFinished;
+    QString cmakeProcessOutput;
 
     if (checkForCMakeCachetxt(buildDirectoryPath->lineEdit()->text()) == CMakeRunStatus::Failure) {
         return CMakeRunStatus::Failure;
@@ -203,13 +205,19 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommandsCompileJson(co
     }
 
     cmakeProcess.setWorkingDirectory(buildDirectoryPath->lineEdit()->text());
+    cmakeProcess.setProcessChannelMode(QProcess::MergedChannels);
     cmakeProcessReturn = cmakeProcess.execute(QStringLiteral("cmake"),
                                               QStringList{buildDirectoryPath->lineEdit()->text(), QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")});
+    cmakeProcessFinished = cmakeProcess.waitForFinished(-1);
 
-    if (!cmakeProcess.waitForFinished(-1) && cmakeProcessReturn != 0) {
-        QMessageBox::warning(this,
-                             i18n("Warning"),
-                             i18n("Failed to generate the compile_commands.json file ") + i18n("\nCMake return code: %1").arg(cmakeProcessReturn));
+    cmakeProcessOutput = QString::fromUtf8(cmakeProcess.readAllStandardOutput());
+
+    qWarning() << cmakeProcessOutput << QStringLiteral("asdas") << cmakeProcess.readAllStandardOutput();
+
+    executionLogForCmakeProcess->appendPlainText(cmakeProcessOutput);
+
+    if (!cmakeProcessFinished || cmakeProcessReturn != 0) {
+        QMessageBox::warning(this, i18n("Warning"), i18n("Failed to generate the compile_commands.json file"));
         return CMakeRunStatus::Failure;
     }
 
@@ -217,8 +225,13 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommandsCompileJson(co
 }
 
 CMakeRunStatus CMakeToolsWidget::cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(const QString sourceCompileCommandsJsonpath,
-                                                                                         const QString buildCompileCommandsJsonPath)
+                                                                                         const QString buildCompileCommandsJsonPath,
+                                                                                         const bool isChecked)
 {
+    if (isChecked == false) {
+        return CMakeRunStatus::Failure;
+    }
+
     if (QFileInfo(sourceCompileCommandsJsonpath).exists()) {
         QFile(sourceCompileCommandsJsonpath).remove();
     }
@@ -237,10 +250,11 @@ void CMakeToolsWidget::cmakeToolsConfigureButton()
 {
     const QString sourceCompileCommandsJsonpath = sourceDirectoryPath->text() + QStringLiteral("/compile_commands.json");
     const QString buildCompileCommandsJsonPath = buildDirectoryPath->lineEdit()->text() + QStringLiteral("/compile_commands.json");
+    const bool createSymlinkCheckBoxState = checkBoxCreateSymlinkOnSource->isChecked();
 
     CMakeRunStatus createReturn;
 
-    createReturn = cmakeToolsCheckifConfigured(sourceCompileCommandsJsonpath, buildCompileCommandsJsonPath);
+    createReturn = cmakeToolsCheckifConfiguredOrImproper(sourceCompileCommandsJsonpath, buildCompileCommandsJsonPath);
 
     if (createReturn == CMakeRunStatus::Failure) {
         return;
@@ -252,15 +266,16 @@ void CMakeToolsWidget::cmakeToolsConfigureButton()
         return;
     }
 
-    createReturn = cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(sourceCompileCommandsJsonpath, buildCompileCommandsJsonPath);
+    createReturn =
+        cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(sourceCompileCommandsJsonpath, buildCompileCommandsJsonPath, createSymlinkCheckBoxState);
 
-    if (createReturn == CMakeRunStatus::Failure) {
+    if (createReturn == CMakeRunStatus::Failure && createSymlinkCheckBoxState == true) {
         return;
     }
 
     QMessageBox::information(this,
                              i18n("Success"),
-                             i18n("The plugin was configured successfully in ") + i18n(sourceDirectoryPath->text().toStdString().c_str()));
+                             i18n("The plugin was configured successfully in ") + i18n(buildDirectoryPath->lineEdit()->text().toStdString().c_str()));
 
     saveWidgetSessionOnSourceToBuildMap(sourceDirectoryPath->text(), buildDirectoryPath->lineEdit()->text());
 }
