@@ -5,7 +5,9 @@
 #include <QMap>
 #include <ktexteditor/view.h>
 
+#include <QProcess>
 #include <QWidget>
+#include <memory>
 
 #include "ui_cmaketoolswidget.h"
 
@@ -27,6 +29,7 @@ private Q_SLOTS:
     void guessCMakeListsFolder(KTextEditor::View *v);
     void cmakeToolsSelectBuildFolderButton();
     void cmakeToolsConfigureButton();
+    void printCMakeProcessOutputOnPlainTextEdit();
 
 private:
     KTextEditor::MainWindow *m_mainWindow;
@@ -41,6 +44,7 @@ private:
                                                                            const QString buildCompileCommandsJsonPath,
                                                                            const bool isChecked);
     QMap<QString, QStringList> m_sourceToBuildMap;
+    std::unique_ptr<QProcess> m_cmakeProcess;
 };
 
 #endif

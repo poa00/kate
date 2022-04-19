@@ -7,16 +7,18 @@
 #include <QFileDialog>
 #include <QLineEdit>
 #include <QMessageBox>
-#include <QProcess>
+#include <qstringliteral.h>
 
 CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget *parent)
     : QWidget(parent)
     , m_mainWindow(mainwindow)
 {
     setupUi(this);
+    m_cmakeProcess.reset(new QProcess);
     connect(m_mainWindow, &KTextEditor::MainWindow::viewChanged, this, &CMakeToolsWidget::guessCMakeListsFolder);
     connect(selectBuildFolderButton, &QToolButton::clicked, this, &CMakeToolsWidget::cmakeToolsSelectBuildFolderButton);
     connect(configureCMakeToolsButton, &QPushButton::clicked, this, &CMakeToolsWidget::cmakeToolsConfigureButton);
+    connect(m_cmakeProcess.get(), &QProcess::finished, this, &CMakeToolsWidget::printCMakeProcessOutputOnPlainTextEdit);
 }
 
 CMakeToolsWidget::~CMakeToolsWidget() = default;
@@ -166,6 +168,13 @@ void CMakeToolsWidget::cmakeToolsSelectBuildFolderButton()
     loadWidgetSessionFromSourceToBuildMap(sourceDirectoryPath->text());
 }
 
+void CMakeToolsWidget::printCMakeProcessOutputOnPlainTextEdit()
+{
+    QString convertedOutput = QString::fromUtf8(m_cmakeProcess->readAll());
+    executionLogForCmakeProcess->appendPlainText(convertedOutput);
+    executionLogForCmakeProcess->appendPlainText(QStringLiteral("\n------------------------------\n"));
+}
+
 CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfiguredOrImproper(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath)
 {
     if (QFileInfo(buildCompileCommandsJsonPath).exists() && QFileInfo(sourceCompileCommandsJsonPath).symLinkTarget() == buildCompileCommandsJsonPath) {
@@ -187,10 +196,7 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsCheckifConfiguredOrImproper(const QSt
 
 CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommandsCompileJson(const QString buildCompileCommandsJsonPath)
 {
-    QProcess cmakeProcess;
     int cmakeProcessReturn = 1;
-    bool cmakeProcessFinished;
-    QString cmakeProcessOutput;
 
     if (checkForCMakeCachetxt(buildDirectoryPath->lineEdit()->text()) == CMakeRunStatus::Failure) {
         return CMakeRunStatus::Failure;
@@ -204,19 +210,12 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommandsCompileJson(co
         return CMakeRunStatus::Failure;
     }
 
-    cmakeProcess.setWorkingDirectory(buildDirectoryPath->lineEdit()->text());
-    cmakeProcess.setProcessChannelMode(QProcess::MergedChannels);
-    cmakeProcessReturn = cmakeProcess.execute(QStringLiteral("cmake"),
-                                              QStringList{buildDirectoryPath->lineEdit()->text(), QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")});
-    cmakeProcessFinished = cmakeProcess.waitForFinished(-1);
+    m_cmakeProcess->setWorkingDirectory(buildDirectoryPath->lineEdit()->text());
+    m_cmakeProcess->setProcessChannelMode(QProcess::MergedChannels);
+    cmakeProcessReturn = m_cmakeProcess->execute(QStringLiteral("cmake"),
+                                                 QStringList{buildDirectoryPath->lineEdit()->text(), QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")});
 
-    cmakeProcessOutput = QString::fromUtf8(cmakeProcess.readAllStandardOutput());
-
-    qWarning() << cmakeProcessOutput << QStringLiteral("asdas") << cmakeProcess.readAllStandardOutput();
-
-    executionLogForCmakeProcess->appendPlainText(cmakeProcessOutput);
-
-    if (!cmakeProcessFinished || cmakeProcessReturn != 0) {
+    if (cmakeProcessReturn != 0) {
         QMessageBox::warning(this, i18n("Warning"), i18n("Failed to generate the compile_commands.json file"));
         return CMakeRunStatus::Failure;
     }
