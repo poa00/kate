@@ -28,7 +28,8 @@ public:
 private Q_SLOTS:
     void guessCMakeListsFolder(KTextEditor::View *v);
     void cmakeToolsSelectBuildFolderButton();
-    void cmakeToolsConfigureButton();
+    void cmakeToolsConfigureButtonBeforeProcessFinished();
+    void cmakeToolsConfigureButtonAfterProcessFinished();
     void printCMakeProcessOutputOnPlainTextEdit();
 
 private:
@@ -38,13 +39,15 @@ private:
     CMakeRunStatus checkForCMakeCachetxt(const QString buildPathToCheck, const bool errorMessage = true);
     QString getSourceDirFromCMakeCache();
     void searchForBuildDirectoriesInsideSource();
-    CMakeRunStatus cmakeToolsCheckifConfiguredOrImproper(const QString sourceCompileCommandsJsonPath, const QString buildCompileCommandsJsonPath);
-    CMakeRunStatus cmakeToolsVerifyAndCreateCommandsCompileJson(const QString buildCompileCommandsJsonPath);
-    CMakeRunStatus cmakeToolsCreateLinkToCommandsCompileJsonOnSourceFolder(const QString sourceCompileCommandsJsonPath,
-                                                                           const QString buildCompileCommandsJsonPath,
-                                                                           const bool isChecked);
+    CMakeRunStatus cmakeToolsCheckIfImproper();
+    void cmakeToolsCreateCompileCommandsJson();
+    void qProcessError();
+    CMakeRunStatus cmakeToolsCopyCommandsCompileJsonOnSourceFolder(const QString sourceCompileCommandsJsonPath,
+                                                                   const QString buildCompileCommandsJsonPath,
+                                                                   const bool isChecked);
     QMap<QString, QStringList> m_sourceToBuildMap;
     std::unique_ptr<QProcess> m_cmakeProcess;
+    bool m_createCopyCheckBoxState;
 };
 
 #endif

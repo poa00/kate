@@ -15,25 +15,14 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="buildfolder">
-     <property name="text">
-      <string>Select Build folder:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QComboBox" name="buildDirectoryPath">
        <property name="editable">
         <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string>Select build folder</string>
        </property>
       </widget>
      </item>
@@ -45,13 +34,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -83,7 +65,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBoxCreateSymlinkOnSource">
+      <widget class="QCheckBox" name="checkBoxCreateCopyOnSource">
        <property name="text">
         <string>Copy compile_commands.json to source dir</string>
        </property>

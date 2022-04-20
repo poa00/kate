@@ -53,6 +53,7 @@ public:
 
 private Q_SLOTS:
     void onViewCreated(KTextEditor::View *v);
+    void handleEsc(QEvent *e);
 
 private:
     KTextEditor::MainWindow *m_mainWindow;

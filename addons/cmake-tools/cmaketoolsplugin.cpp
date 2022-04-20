@@ -35,13 +35,15 @@ CMakeToolsPluginView::CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor
     m_toolview.reset(mainwindow->createToolView(plugin,
                                                 QStringLiteral("kate_private_plugin_katecmaketoolsplugin"),
                                                 KTextEditor::MainWindow::Bottom,
-                                                QIcon::fromTheme(QStringLiteral("folder")),
+                                                QIcon::fromTheme(QStringLiteral("cmake")),
                                                 i18n("CMake")));
 
     KConfigGroup config(KSharedConfig::openConfig(), "cmake-tools");
     m_widget = new CMakeToolsWidget(mainwindow, m_toolview.get());
 
     connect(m_mainWindow, &KTextEditor::MainWindow::viewCreated, this, &CMakeToolsPluginView::onViewCreated);
+    connect(m_mainWindow, &KTextEditor::MainWindow::unhandledShortcutOverride, this, &CMakeToolsPluginView::handleEsc);
+
     /**
      * connect for all already existing views
      */
@@ -87,6 +89,21 @@ void CMakeToolsPluginView::onViewCreated(KTextEditor::View *v)
     KTextEditor::CodeCompletionInterface *cci = qobject_cast<KTextEditor::CodeCompletionInterface *>(v);
     if (cci) {
         cci->registerCompletionModel(&m_completion);
+    }
+}
+
+void CMakeToolsPluginView::handleEsc(QEvent *e)
+{
+    if (!m_mainWindow) {
+        return;
+    }
+
+    QKeyEvent *k = static_cast<QKeyEvent *>(e);
+
+    if (k->key() == Qt::Key_Escape && k->modifiers() == Qt::NoModifier) {
+        if (m_toolview->isVisible()) {
+            m_mainWindow->hideToolView(m_toolview.get());
+        }
     }
 }
 
