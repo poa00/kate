@@ -83,6 +83,16 @@
       </spacer>
      </item>
      <item>
+      <widget class="QCheckBox" name="checkBoxCreateSymlinkOnSource">
+       <property name="text">
+        <string>Copy compile_commands.json to source dir</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="configureCMakeToolsButton">
        <property name="text">
         <string>Configure</string>
@@ -95,23 +105,13 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPlainTextEdit" name="executionLogForCmakeProcess">
-        <property name="readOnly">
+       <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QCheckBox" name="checkBoxCreateSymlinkOnSource">
-         <property name="text">
-          <string>Create Symlink on source to compile_commands.json</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">

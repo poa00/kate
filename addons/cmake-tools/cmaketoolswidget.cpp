@@ -206,10 +206,6 @@ CMakeRunStatus CMakeToolsWidget::cmakeToolsVerifyAndCreateCommandsCompileJson(co
         return CMakeRunStatus::Success;
     }
 
-    if (QMessageBox::Yes != QMessageBox::question(this, i18n("Generate file?"), i18n("Do you wish to generate the file compile_commands.json?"))) {
-        return CMakeRunStatus::Failure;
-    }
-
     m_cmakeProcess->setWorkingDirectory(buildDirectoryPath->lineEdit()->text());
     m_cmakeProcess->setProcessChannelMode(QProcess::MergedChannels);
     cmakeProcessReturn = m_cmakeProcess->execute(QStringLiteral("cmake"),
