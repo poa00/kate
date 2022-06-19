@@ -17,7 +17,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QComboBox" name="buildDirectoryPath">
+      <widget class="QComboBox" name="buildDirPath">
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -27,7 +27,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="selectBuildFolderButton">
+      <widget class="QToolButton" name="selectBuildFolderBtn">
        <property name="text">
         <string>...</string>
        </property>
@@ -45,7 +45,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="sourceDirectoryPath">
+      <widget class="QLabel" name="sourceDirPath">
        <property name="text">
         <string>Source</string>
        </property>
@@ -75,7 +75,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="configureCMakeToolsButton">
+      <widget class="QPushButton" name="configureCMakeToolsBtn">
        <property name="text">
         <string>Configure</string>
        </property>
@@ -86,7 +86,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPlainTextEdit" name="executionLogForCmakeProcess">
+      <widget class="QPlainTextEdit" name="cmakeExecutionLog">
        <property name="readOnly">
         <bool>true</bool>
        </property>

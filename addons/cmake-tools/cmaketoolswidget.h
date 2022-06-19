@@ -22,29 +22,27 @@ public:
 
     ~CMakeToolsWidget() override;
 
-    void setSourceToBuildMap(const QMap<QString, QStringList> readedQMap);
-    const QMap<QString, QStringList> getSourceToBuildMap();
+    void setSourceToBuildMap(const QMap<QString, QStringList> &readedQMap);
+    QMap<QString, QStringList> getSourceToBuildMap();
 
 private Q_SLOTS:
     void guessCMakeListsFolder(KTextEditor::View *v);
-    void cmakeToolsSelectBuildFolderButton();
-    void cmakeToolsConfigureButtonBeforeProcessFinished();
-    void cmakeToolsConfigureButtonAfterProcessFinished();
-    void printCMakeProcessOutputOnPlainTextEdit();
+    void selectBuildFolder();
+    void onConfigureBtnClicked();
+    void cmakeFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void appendCMakeProcessOutput();
 
 private:
-    KTextEditor::MainWindow *m_mainWindow;
-    void loadWidgetSessionFromSourceToBuildMap(const QString sourcePath);
-    void saveWidgetSessionOnSourceToBuildMap(const QString sourcePath, const QString buildPath);
-    CMakeRunStatus checkForCMakeCachetxt(const QString buildPathToCheck, const bool errorMessage = true);
+    void loadWidgetSession(const QString &sourcePath);
+    void saveWidgetSession(const QString &sourcePath, const QString &buildPath);
+    bool hasDirCmakeCache(const QString &buildPathToCheck, bool errorMessage = true);
     QString getSourceDirFromCMakeCache();
-    void searchForBuildDirectoriesInsideSource();
-    CMakeRunStatus cmakeToolsCheckIfImproper();
-    void cmakeToolsCreateCompileCommandsJson();
-    void qProcessError();
-    CMakeRunStatus cmakeToolsCopyCommandsCompileJsonOnSourceFolder(const QString sourceCompileCommandsJsonPath,
-                                                                   const QString buildCompileCommandsJsonPath,
-                                                                   const bool isChecked);
+    void searchForBuildDirectories();
+    bool isCmakeToolsValid();
+    void qProcessError(QProcess::ProcessError error);
+    CMakeRunStatus copyCompileCommandsToSource(const QString &sourceCompileCommandsPath, const QString &buildCompileCommandsPath);
+
+    KTextEditor::MainWindow *m_mainWindow;
     QMap<QString, QStringList> m_sourceToBuildMap;
     std::unique_ptr<QProcess> m_cmakeProcess;
     bool m_createCopyCheckBoxState;
