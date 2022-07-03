@@ -2,23 +2,23 @@
 #define KATE_CMAKE_TOOLS_WIDGET_H
 
 #include <KTextEditor/MainWindow>
-#include <QMap>
 #include <ktexteditor/view.h>
 
+#include <QMap>
 #include <QProcess>
 #include <QWidget>
+
 #include <memory>
 
+#include "cmaketoolsplugin.h"
 #include "ui_cmaketoolswidget.h"
-
-enum class CMakeRunStatus { Failure = 0, Success = 1 };
 
 class CMakeToolsWidget : public QWidget, public Ui::CMakeToolsWidget
 {
     Q_OBJECT
 
 public:
-    CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, QWidget *parent);
+    CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, CMakeToolsPlugin *plugin, QWidget *parent);
 
     ~CMakeToolsWidget() override;
 
@@ -35,16 +35,17 @@ private Q_SLOTS:
 private:
     void loadWidgetSession(const QString &sourcePath);
     void saveWidgetSession(const QString &sourcePath, const QString &buildPath);
-    bool hasDirCmakeCache(const QString &buildPathToCheck, bool errorMessage = true);
+    bool hasCmakeCacheDir(const QString &buildPathToCheck);
     QString getSourceDirFromCMakeCache();
     void searchForBuildDirectories();
     bool isCmakeToolsValid();
     void qProcessError(QProcess::ProcessError error);
-    CMakeRunStatus copyCompileCommandsToSource(const QString &sourceCompileCommandsPath, const QString &buildCompileCommandsPath);
+    bool copyCompileCommandsToSource(const QString &sourceCompileCommandsPath, const QString &buildCompileCommandsPath);
 
     KTextEditor::MainWindow *m_mainWindow;
+    CMakeToolsPlugin *m_plugin;
     QMap<QString, QStringList> m_sourceToBuildMap;
-    std::unique_ptr<QProcess> m_cmakeProcess;
+    QProcess m_cmakeProcess;
     bool m_createCopyCheckBoxState;
 };
 

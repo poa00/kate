@@ -33,6 +33,9 @@ public:
     ~CMakeToolsPlugin() override;
 
     QObject *createView(KTextEditor::MainWindow *mainWindow) override;
+    void sendMessage(const QString &plainText, bool warn);
+
+    Q_SIGNAL void message(const QVariantMap &);
 };
 
 /**

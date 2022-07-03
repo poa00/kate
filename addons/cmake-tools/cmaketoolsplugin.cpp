@@ -7,6 +7,7 @@
 #include "cmaketoolsplugin.h"
 #include "cmaketoolswidget.h"
 
+#include <KLocalizedString>
 #include <KPluginFactory>
 #include <KTextEditor/MainWindow>
 #include <KXMLGUIFactory>
@@ -28,6 +29,17 @@ QObject *CMakeToolsPlugin::createView(KTextEditor::MainWindow *mainWindow)
     return new CMakeToolsPluginView(this, mainWindow);
 }
 
+void CMakeToolsPlugin::sendMessage(const QString &plainText, bool warn)
+{
+    // use generic output view
+    QVariantMap genericMessage;
+    genericMessage.insert(QStringLiteral("type"), warn ? QStringLiteral("Error") : QStringLiteral("Info"));
+    genericMessage.insert(QStringLiteral("category"), i18n("CMake"));
+    genericMessage.insert(QStringLiteral("categoryIcon"), QIcon::fromTheme(QStringLiteral("cmake")));
+    genericMessage.insert(QStringLiteral("text"), plainText);
+    Q_EMIT message(genericMessage);
+}
+
 CMakeToolsPluginView::CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor::MainWindow *mainwindow)
     : QObject(plugin)
     , m_mainWindow(mainwindow)
@@ -39,7 +51,7 @@ CMakeToolsPluginView::CMakeToolsPluginView(CMakeToolsPlugin *plugin, KTextEditor
                                                 i18n("CMake")));
 
     KConfigGroup config(KSharedConfig::openConfig(), "cmake-tools");
-    m_widget = new CMakeToolsWidget(mainwindow, m_toolview.get());
+    m_widget = new CMakeToolsWidget(mainwindow, plugin, m_toolview.get());
 
     connect(m_mainWindow, &KTextEditor::MainWindow::viewCreated, this, &CMakeToolsPluginView::onViewCreated);
     connect(m_mainWindow, &KTextEditor::MainWindow::unhandledShortcutOverride, this, &CMakeToolsPluginView::handleEsc);
