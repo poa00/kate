@@ -115,8 +115,9 @@ QString CMakeToolsWidget::getSourceDirFromCMakeCache()
         return QLatin1String("");
     }
 
-    const int start = lines.indexOf(sourcePrefix);
-    QString sourceFolderPath = lines.mid(start, sourcePrefix.length());
+    const int start = lines.indexOf(sourcePrefix) + sourcePrefix.length();
+    const int end = lines.indexOf(QLatin1Char('\n'), start + 1);
+    QString sourceFolderPath = lines.mid(start, end - start);
     return sourceFolderPath;
 }
 
