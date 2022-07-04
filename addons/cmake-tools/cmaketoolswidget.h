@@ -26,7 +26,7 @@ public:
     QMap<QString, QStringList> getSourceToBuildMap();
 
 private Q_SLOTS:
-    void guessCMakeListsFolder(KTextEditor::View *v);
+    void guessCMakeListsDir(KTextEditor::View *v);
     void selectBuildFolder();
     void onConfigureBtnClicked();
     void cmakeFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -35,9 +35,9 @@ private Q_SLOTS:
 private:
     void loadWidgetSession(const QString &sourcePath);
     void saveWidgetSession(const QString &sourcePath, const QString &buildPath);
-    bool hasCmakeCacheDir(const QString &buildPathToCheck);
+    bool containsCmakeCacheFile(const QString &buildPathToCheck);
     QString getSourceDirFromCMakeCache();
-    void searchForBuildDirectories();
+    void searchBuildDir();
     bool isCmakeToolsValid();
     void qProcessError(QProcess::ProcessError error);
     bool copyCompileCommandsToSource(const QString &sourceCompileCommandsPath, const QString &buildCompileCommandsPath);

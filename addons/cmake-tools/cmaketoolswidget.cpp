@@ -22,9 +22,9 @@ CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, CMakeToo
     setupUi(this);
     m_cmakeProcess.setProcessChannelMode(QProcess::MergedChannels);
     cmakeExecutionLog->document()->setDefaultFont(KTextEditor::Editor::instance()->font());
-    buildDirPath->lineEdit()->setPlaceholderText(QStringLiteral("Select build folder"));
+    buildDirPath->lineEdit()->setPlaceholderText(QStringLiteral("Choose a build folder"));
 
-    connect(m_mainWindow, &KTextEditor::MainWindow::viewChanged, this, &CMakeToolsWidget::guessCMakeListsFolder);
+    connect(m_mainWindow, &KTextEditor::MainWindow::viewChanged, this, &CMakeToolsWidget::guessCMakeListsDir);
     connect(selectBuildFolderBtn, &QToolButton::clicked, this, &CMakeToolsWidget::selectBuildFolder);
     connect(configureCMakeToolsBtn, &QPushButton::clicked, this, &CMakeToolsWidget::onConfigureBtnClicked);
     connect(&m_cmakeProcess, &QProcess::readyReadStandardOutput, this, &CMakeToolsWidget::appendCMakeProcessOutput);
@@ -65,7 +65,7 @@ void CMakeToolsWidget::saveWidgetSession(const QString &sourcePath, const QStrin
     loadWidgetSession(sourcePath);
 }
 
-void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
+void CMakeToolsWidget::guessCMakeListsDir(KTextEditor::View *v)
 {
     bool docIsEmpty = v->document()->url().isEmpty();
     sourceLabel->setVisible(docIsEmpty);
@@ -76,34 +76,29 @@ void CMakeToolsWidget::guessCMakeListsFolder(KTextEditor::View *v)
     }
 
     QString currentViewDocPath = v->document()->url().path();
-    currentViewDocPath.truncate(currentViewDocPath.lastIndexOf(QLatin1Char('/')));
-
     if (!sourceDirPath->text().isEmpty() && currentViewDocPath.contains(sourceDirPath->text())) {
         return;
     }
 
-    QDir currentDir = QDir(currentViewDocPath);
-    QDir previousDir;
+    QDir currentDir = QFileInfo(currentViewDocPath).absoluteDir();
+    QDir previousDir = currentDir;
 
-    while (currentDir.exists(QStringLiteral("CMakeLists.txt"))) {
+    while (!currentDir.exists(QStringLiteral("CMakeLists.txt")) && currentDir.cdUp()) {
         previousDir = currentDir;
-        if (!currentDir.cdUp()) {
-            break;
-        }
     }
 
     sourceDirPath->setText(previousDir.canonicalPath());
-    searchForBuildDirectories();
+    searchBuildDir();
 }
 
-bool CMakeToolsWidget::hasCmakeCacheDir(const QString &buildPathToCheck)
+bool CMakeToolsWidget::containsCmakeCacheFile(const QString &buildPathToCheck)
 {
-    return !QFileInfo::exists(buildPathToCheck + QStringLiteral("/CMakeCache.txt"));
+    return QFileInfo::exists(buildPathToCheck + QStringLiteral("/CMakeCache.txt"));
 }
 
 QString CMakeToolsWidget::getSourceDirFromCMakeCache()
 {
-    if (!hasCmakeCacheDir(buildDirPath->lineEdit()->text())) {
+    if (!containsCmakeCacheFile(buildDirPath->lineEdit()->text())) {
         m_plugin->sendMessage(i18n("Folder not selected or the file CMakeCache.txt is not present on the folder selected"), true);
         return QLatin1String("");
     }
@@ -125,14 +120,14 @@ QString CMakeToolsWidget::getSourceDirFromCMakeCache()
     return sourceFolderPath;
 }
 
-void CMakeToolsWidget::searchForBuildDirectories()
+void CMakeToolsWidget::searchBuildDir()
 {
-    QStringList possibleBuildPaths = QDir(sourceDirPath->text()).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    const QStringList possibleBuildPaths = QDir(sourceDirPath->text()).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 
     for (const QString &possibleBuildPath : possibleBuildPaths) {
         QString path = sourceDirPath->text() + QStringLiteral("/") + possibleBuildPath;
 
-        if (hasCmakeCacheDir(path)) {
+        if (containsCmakeCacheFile(path)) {
             saveWidgetSession(sourceDirPath->text(), path);
         }
     }
@@ -145,7 +140,7 @@ void CMakeToolsWidget::selectBuildFolder()
         startingDir = sourceDirPath->text();
     }
 
-    const QString selectedBuildPath = QFileDialog::getExistingDirectory(this, i18n("Select build folder"), startingDir, QFileDialog::ShowDirsOnly);
+    const QString selectedBuildPath = QFileDialog::getExistingDirectory(this, i18n("Choose a build folder"), startingDir, QFileDialog::ShowDirsOnly);
 
     if (selectedBuildPath.isEmpty()) {
         return;
@@ -153,7 +148,7 @@ void CMakeToolsWidget::selectBuildFolder()
 
     buildDirPath->lineEdit()->setText(selectedBuildPath);
     sourceDirPath->setText(getSourceDirFromCMakeCache());
-    searchForBuildDirectories();
+    searchBuildDir();
     loadWidgetSession(sourceDirPath->text());
 }
 
@@ -175,7 +170,12 @@ bool CMakeToolsWidget::isCmakeToolsValid()
         return false;
     }
 
-    return hasCmakeCacheDir(buildDirPath->lineEdit()->text()); // TODO errorMessage
+    if (!containsCmakeCacheFile(buildDirPath->lineEdit()->text())) {
+        m_plugin->sendMessage(i18n("The selected build folder does not contain a CMakeCache.txt file."), true);
+        return false;
+    }
+
+    return true;
 }
 
 bool CMakeToolsWidget::copyCompileCommandsToSource(const QString &sourceCompileCommandsPath, const QString &buildCompileCommandsPath)
@@ -187,7 +187,7 @@ bool CMakeToolsWidget::copyCompileCommandsToSource(const QString &sourceCompileC
     QFile oldCompileCommands(buildCompileCommandsPath);
 
     if (!oldCompileCommands.copy(sourceCompileCommandsPath)) {
-        m_plugin->sendMessage(i18n("Failed to copy ") + i18n(sourceDirPath->text().toStdString().c_str()), true);
+        m_plugin->sendMessage(i18n("Failed to copy %1 to %2", buildCompileCommandsPath, sourceCompileCommandsPath), true);
         return false;
     }
 
@@ -199,7 +199,7 @@ void CMakeToolsWidget::qProcessError(QProcess::ProcessError error)
     Q_UNUSED(error);
 
     m_plugin->sendMessage(i18n("Failed to generate the compile_commands.json file"), true);
-    configureCMakeToolsBtn->setDisabled(false);
+    configureCMakeToolsBtn->setEnabled(true);
 }
 
 void CMakeToolsWidget::onConfigureBtnClicked()
@@ -208,7 +208,7 @@ void CMakeToolsWidget::onConfigureBtnClicked()
     m_createCopyCheckBoxState = checkBoxCreateCopyOnSource->isChecked();
 
     if (!isCmakeToolsValid()) {
-        configureCMakeToolsBtn->setDisabled(false);
+        configureCMakeToolsBtn->setEnabled(true);
         return;
     }
 
@@ -228,11 +228,10 @@ void CMakeToolsWidget::cmakeFinished(int exitCode, QProcess::ExitStatus exitStat
         return;
     }
 
+    configureCMakeToolsBtn->setEnabled(true);
     if (m_createCopyCheckBoxState && !copyCompileCommandsToSource(sourceCompileCommandsPath, buildCompileCommandsPath)) {
-        configureCMakeToolsBtn->setEnabled(true);
         return;
     }
 
-    configureCMakeToolsBtn->setEnabled(true);
     saveWidgetSession(sourceDirPath->text(), buildDirPath->lineEdit()->text());
 }
