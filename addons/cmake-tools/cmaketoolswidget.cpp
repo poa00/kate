@@ -1,5 +1,7 @@
 #include "cmaketoolswidget.h"
+#include "hostprocess.h"
 
+#include <KLocalizedString>
 #include <KTextEditor/Editor>
 #include <KTextEditor/MainWindow>
 
@@ -10,7 +12,6 @@
 #include <QLineEdit>
 #include <qstringliteral.h>
 
-#include <KLocalizedString>
 #include <memory>
 
 CMakeToolsWidget::CMakeToolsWidget(KTextEditor::MainWindow *mainwindow, CMakeToolsPlugin *plugin, QWidget *parent)
@@ -162,17 +163,17 @@ void CMakeToolsWidget::appendCMakeProcessOutput()
 bool CMakeToolsWidget::isCmakeToolsValid()
 {
     if (sourceDirPath->text().isEmpty()) {
-        m_plugin->sendMessage(i18n("Please select a valid path for the source folder by opening a non-empty document."), true);
+        m_plugin->sendMessage(i18n("Please select a valid path for the source folder by opening a non-empty document"), true);
         return false;
     }
 
     if (buildDirPath->lineEdit()->text().isEmpty()) {
-        m_plugin->sendMessage(i18n("Please select a valid path for the build folder."), true);
+        m_plugin->sendMessage(i18n("Please select a valid path for the build folder"), true);
         return false;
     }
 
     if (!containsCmakeCacheFile(buildDirPath->lineEdit()->text())) {
-        m_plugin->sendMessage(i18n("The selected build folder does not contain a CMakeCache.txt file."), true);
+        m_plugin->sendMessage(i18n("The selected build folder does not contain a CMakeCache.txt file"), true);
         return false;
     }
 
@@ -213,8 +214,14 @@ void CMakeToolsWidget::onConfigureBtnClicked()
         return;
     }
 
+    static const auto cmakeExecutable = safeExecutableName(QStringLiteral("cmake"));
+    if (cmakeExecutable.isEmpty()) {
+        m_plugin->sendMessage(i18n("Could not find 'cmake' executable"), true);
+        return;
+    }
+
     m_cmakeProcess.setWorkingDirectory(buildDirPath->lineEdit()->text());
-    m_cmakeProcess.start(QStringLiteral("cmake"), QStringList{buildDirPath->lineEdit()->text(), QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")});
+    startHostProcess(m_cmakeProcess, cmakeExecutable, {buildDirPath->lineEdit()->text(), QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON")});
 }
 
 void CMakeToolsWidget::cmakeFinished(int exitCode, QProcess::ExitStatus exitStatus)
