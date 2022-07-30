@@ -58,9 +58,6 @@
         "Name[uk]": "GDB",
         "Name[vi]": "GDB",
         "Name[x-test]": "xxGDBxx",
-        "Name[zh_CN]": "GDB",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "GDB"
     }
 }

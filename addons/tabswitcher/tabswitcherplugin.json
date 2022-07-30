@@ -58,9 +58,6 @@
         "Name[uk]": "Перемикач між документами",
         "Name[vi]": "Trình chuyển tài liệu",
         "Name[x-test]": "xxDocument Switcherxx",
-        "Name[zh_CN]": "文档切换器",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "文档切换器"
     }
 }

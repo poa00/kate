@@ -56,10 +56,7 @@
         "Name[uk]": "Додаток закриття за критерієм",
         "Name[vi]": "Đóng ngoại trừ / theo kiểu",
         "Name[x-test]": "xxClose Except/Likexx",
-        "Name[zh_CN]": "批量关闭",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "批量关闭"
     },
     "X-KDE-Version": "4.0",
     "X-Kate-Load": "True",

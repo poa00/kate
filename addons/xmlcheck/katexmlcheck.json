@@ -57,9 +57,6 @@
         "Name[uk]": "Перевірка XML",
         "Name[vi]": "Kiểm nhận XML",
         "Name[x-test]": "xxXML Validationxx",
-        "Name[zh_CN]": "XML 验证",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "XML 验证"
     }
 }

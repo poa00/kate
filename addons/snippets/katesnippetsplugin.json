@@ -61,7 +61,6 @@
         "Name[x-test]": "xxSnippets Tool Viewxx",
         "Name[zh_CN]": "代码片段工具视图",
         "ServiceTypes": [
-            "KTextEditor/Plugin",
             "KDevelop/Plugin"
         ]
     }

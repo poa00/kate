@@ -49,9 +49,6 @@
         "Name[uk]": "Інструменти CMake",
         "Name[vi]": "Các công cụ CMake",
         "Name[x-test]": "xxCMake Toolsxx",
-        "Name[zh_CN]": "CMake 工具",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "CMake 工具"
     }
 }

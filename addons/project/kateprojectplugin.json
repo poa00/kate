@@ -57,9 +57,6 @@
         "Name[uk]": "Додаток проєктів",
         "Name[vi]": "Phần cài cắm \"dự án\"",
         "Name[x-test]": "xxProject Pluginxx",
-        "Name[zh_CN]": "项目插件",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "项目插件"
     }
 }

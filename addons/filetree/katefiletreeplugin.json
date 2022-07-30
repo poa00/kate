@@ -58,9 +58,6 @@
         "Name[uk]": "Ієрархія документів",
         "Name[vi]": "Khung xem cây tài liệu",
         "Name[x-test]": "xxDocument Tree Viewxx",
-        "Name[zh_CN]": "文档树视图",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "文档树视图"
     }
 }

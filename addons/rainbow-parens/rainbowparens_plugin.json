@@ -50,9 +50,6 @@
         "Name[uk]": "Кольорові дужки",
         "Name[vi]": "Dấu ngoặc được tô màu",
         "Name[x-test]": "xxColored Bracketsxx",
-        "Name[zh_CN]": "彩色括号",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "彩色括号"
     }
 }

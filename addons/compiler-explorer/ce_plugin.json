@@ -51,9 +51,6 @@
         "Name[uk]": "Засіб аналізу компілятора",
         "Name[vi]": "Trình khảo sát trình biên dịch",
         "Name[x-test]": "xxCompiler Explorerxx",
-        "Name[zh_CN]": "编译器浏览器",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "编译器浏览器"
     }
 }

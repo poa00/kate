@@ -55,9 +55,6 @@
         "Name[uk]": "Інструмент термінала",
         "Name[vi]": "Khung xem công cụ dòng lệnh",
         "Name[x-test]": "xxTerminal Tool Viewxx",
-        "Name[zh_CN]": "终端工具视图",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "终端工具视图"
     }
 }

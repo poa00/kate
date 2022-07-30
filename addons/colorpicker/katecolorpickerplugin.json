@@ -58,9 +58,6 @@
         "Name[uk]": "Піпетка",
         "Name[vi]": "Trình nhặt màu",
         "Name[x-test]": "xxColor Pickerxx",
-        "Name[zh_CN]": "拾色器",
-        "ServiceTypes": [
-            "KTextEditor/Plugin"
-        ]
+        "Name[zh_CN]": "拾色器"
     }
 }
