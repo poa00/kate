@@ -93,6 +93,11 @@ struct LSPWorkspaceFoldersServerCapabilities {
     bool changeNotifications = false;
 };
 
+struct LSPDocumentLinkOptions {
+    bool provider = false;
+    bool resolveProvider = false;
+};
+
 struct LSPServerCapabilities {
     LSPTextDocumentSyncOptions textDocumentSync;
     bool hoverProvider = false;
@@ -117,6 +122,7 @@ struct LSPServerCapabilities {
     // (other parts not useful/considered at present)
     LSPWorkspaceFoldersServerCapabilities workspaceFolders;
     bool selectionRangeProvider = false;
+    LSPDocumentLinkOptions documentLinkProvider;
 };
 
 enum class LSPMarkupKind { None = 0, PlainText = 1, MarkDown = 2 };
@@ -225,6 +231,13 @@ struct LSPTextEdit {
 struct LSPSelectionRange {
     LSPRange range;
     std::shared_ptr<LSPSelectionRange> parent;
+};
+
+struct LSPDocumentLink {
+    LSPRange range;
+    QUrl url;
+    QString tooltip;
+    // TODO lsp any
 };
 
 enum class LSPCompletionItemKind {

@@ -5,6 +5,7 @@
 */
 
 #include "lspclientpluginview.h"
+#include "documentlinking.h"
 #include "gotosymboldialog.h"
 #include "lspclientcompletion.h"
 #include "lspclienthover.h"
@@ -567,6 +568,8 @@ class LSPClientPluginViewImpl : public QObject, public KXMLGUIClient, public KTe
 
     SemanticHighlighter m_semHighlightingManager;
 
+    DocumentLinker m_documentLinker;
+
 Q_SIGNALS:
 
     /**
@@ -587,6 +590,7 @@ public:
         , m_forwardHover(new ForwardingTextHintProvider(this))
         , m_symbolView(LSPClientSymbolView::new_(plugin, mainWin, m_serverManager))
         , m_semHighlightingManager(m_serverManager)
+        , m_documentLinker(m_serverManager, mainWin)
     {
         KXMLGUIClient::setComponentName(QStringLiteral("lspclient"), i18n("LSP Client"));
         setXMLFile(QStringLiteral("ui.rc"));
@@ -884,7 +888,16 @@ public:
                 // must set cursor else we will be jumping somewhere else!!
                 v->setCursorPosition(cur);
                 m_ctrlHoverFeedback.clear(v);
-                goToDefinition();
+
+                auto range = doc->wordRangeAt(cur);
+                // TODO do we need to double check whether we are referring to ranges within the same doc?
+                if (!range.isEmpty() && m_documentLinker.hasLink(range)) {
+                    const auto docLink = m_documentLinker.getLink(range);
+                    goToDocumentLocation(docLink.url, KTextEditor::Range::invalid());
+                } else {
+                    // try to find a definition if we do not have a document link
+                    goToDefinition();
+                }
             }
         }
         // The user is hovering with Ctrl pressed

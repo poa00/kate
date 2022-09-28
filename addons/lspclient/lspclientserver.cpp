@@ -6,8 +6,9 @@
 
 #include "lspclientserver.h"
 
-#include "lspclient_debug.h"
 #include "hostprocess.h"
+#include "lspclient_debug.h"
+#include "lspclientprotocol.h"
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -351,6 +352,15 @@ static void from_json(LSPSemanticTokensOptions &options, const QJsonObject &json
     //     });
 }
 
+static void from_json(LSPDocumentLinkOptions &options, const QJsonValue &json)
+{
+    if (json.isObject()) {
+        auto ob = json.toObject();
+        options.provider = true;
+        options.resolveProvider = ob.value(QStringLiteral("resolveProvider")).toBool();
+    }
+}
+
 static void from_json(LSPServerCapabilities &caps, const QJsonObject &json)
 {
     // in older protocol versions a support option is simply a boolean
@@ -391,6 +401,7 @@ static void from_json(LSPServerCapabilities &caps, const QJsonObject &json)
     auto workspace = json.value(QStringLiteral("workspace")).toObject();
     from_json(caps.workspaceFolders, workspace.value(QStringLiteral("workspaceFolders")));
     caps.selectionRangeProvider = toBoolOrObject(json.value(QStringLiteral("selectionRangeProvider")));
+    from_json(caps.documentLinkProvider, json.value(QStringLiteral("documentLinkProvider")));
 }
 
 // follow suit; as performed in kate docmanager
@@ -484,6 +495,29 @@ static std::shared_ptr<LSPSelectionRange> parseSelectionRange(QJsonValueRef sele
         selRange = selRange[QStringLiteral("parent")].toObject();
         current->parent = std::make_shared<LSPSelectionRange>(LSPSelectionRange{});
         current = current->parent;
+    }
+
+    return ret;
+}
+
+static LSPDocumentLink parseDocumentLink(const QJsonValue &result)
+{
+    LSPDocumentLink res;
+    auto docLink = result.toObject();
+    res.range = parseRange(docLink.value(MEMBER_RANGE).toObject());
+    res.url = normalizeUrl(QUrl(docLink.value(QStringLiteral("targetUri")).toString()));
+    res.tooltip = docLink.value(QStringLiteral("tooltip")).toString();
+    return res;
+}
+
+static QList<LSPDocumentLink> parseDocumentLinks(const QJsonValue &result)
+{
+    QList<LSPDocumentLink> ret;
+    if (result.isArray()) {
+        auto documentLinks = result.toArray();
+        for (const auto &docLink : documentLinks) {
+            ret.push_back(parseDocumentLink(docLink));
+        }
     }
 
     return ret;
@@ -1563,6 +1597,12 @@ public:
         return send(init_request(QStringLiteral("textDocument/semanticTokens/full"), params), h);
     }
 
+    RequestHandle documentLink(const QUrl &document, const GenericReplyHandler &h)
+    {
+        auto params = textDocumentParams(document);
+        return send(init_request(QStringLiteral("textDocument/documentLink"), params), h);
+    }
+
     void executeCommand(const QString &command, const QJsonValue &args)
     {
         auto params = executeCommandParams(command, args);
@@ -1915,6 +1955,11 @@ LSPClientServer::RequestHandle
 LSPClientServer::documentSemanticTokensRange(const QUrl &document, const LSPRange &range, const QObject *context, const SemanticTokensDeltaReplyHandler &h)
 {
     return d->documentSemanticTokensFull(document, /* delta = */ false, QString(), range, make_handler(h, context, parseSemanticTokensDelta));
+}
+
+LSPClientServer::RequestHandle LSPClientServer::documentLink(const QUrl &document, const QObject *context, const DocumentLinkReplyHandler &h)
+{
+    return d->documentLink(document, make_handler(h, context, parseDocumentLinks));
 }
 
 void LSPClientServer::executeCommand(const QString &command, const QJsonValue &args)
