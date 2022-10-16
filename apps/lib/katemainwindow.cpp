@@ -71,6 +71,7 @@
 #include <QMimeDatabase>
 #include <QScreen>
 #include <QStackedWidget>
+#include <QTextBrowser>
 #include <QTimer>
 #include <QToolButton>
 
@@ -176,6 +177,10 @@ KateMainWindow::KateMainWindow(KConfig *sconfig, const QString &sgroup)
 
     // trigger proper focus restore
     m_viewManager->triggerActiveViewFocus();
+
+    if (KateApp::isKate()) {
+        showChangeLogIfNeeded();
+    }
 }
 
 KateMainWindow::~KateMainWindow()
@@ -882,6 +887,27 @@ void KateMainWindow::slotListRecursiveEntries(KIO::Job *job, const KIO::UDSEntry
             url.setPath(url.path() + QLatin1Char('/') + entry.stringValue(KIO::UDSEntry::UDS_NAME));
             m_viewManager->openUrl(url);
         }
+    }
+}
+
+void KateMainWindow::showChangeLogIfNeeded()
+{
+    KConfigGroup cg(KSharedConfig::openConfig(), "General");
+    const QString version = cg.readEntry("Kate Version", QString());
+    const auto currentVersion = QString::fromUtf8(KATE_VERSION);
+    if (!version.isEmpty() && version == currentVersion) {
+        // Same version
+        return;
+    }
+
+    cg.writeEntry("Kate Version", currentVersion);
+    QTextBrowser *b = new QTextBrowser(this);
+    b->setWindowTitle(i18n("What's New - Kate %1", currentVersion));
+    QFile f(QStringLiteral(":/kate/changelog.html"));
+    if (f.open(QFile::ReadOnly)) {
+        b->setHtml(QString::fromUtf8(f.readAll()));
+        b->setOpenLinks(false);
+        addWidget(b);
     }
 }
 

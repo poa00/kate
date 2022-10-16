@@ -9,4 +9,7 @@
     <qresource prefix="/kate">
         <file>mascot.png</file>
     </qresource>
+    <qresource prefix="/kate">
+        <file>changelog.html</file>
+    </qresource>
 </RCC>

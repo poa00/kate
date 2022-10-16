@@ -213,6 +213,8 @@ private Q_SLOTS:
 
     void slotListRecursiveEntries(KIO::Job *job, const KIO::UDSEntryList &list);
 
+    void showChangeLogIfNeeded();
+
 private Q_SLOTS:
     void toggleShowMenuBar(bool showMessage = true);
     void toggleShowStatusBar();
