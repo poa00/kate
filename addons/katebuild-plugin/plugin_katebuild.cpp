@@ -1369,6 +1369,8 @@ void KateBuildView::slotAddProjectTarget()
         projectsBuildDir = QDir(projectsBaseDir).absoluteFilePath(projectsBuildDir);
     }
     const QModelIndex set = m_targetsUi->targetsModel.addTargetSet(i18n("Project Plugin Targets"), projectsBuildDir);
+    const QString defaultTarget = buildMap.value(QStringLiteral("default_target")).toString();
+    QPersistentModelIndex defaultTgtIdx;
 
     const QVariantList targetsets = buildMap.value(QStringLiteral("targets")).toList();
     for (const QVariant &targetVariant : targetsets) {
@@ -1380,10 +1382,14 @@ void KateBuildView::slotAddProjectTarget()
         if (tgtName.isEmpty() || buildCmd.isEmpty()) {
             continue;
         }
-        m_targetsUi->targetsModel.addCommand(set, tgtName, buildCmd, runCmd);
+        auto idx = m_targetsUi->targetsModel.addCommand(set, tgtName, buildCmd, runCmd);
+
+        if (!defaultTgtIdx.isValid() && tgtName == defaultTarget) {
+            defaultTgtIdx = idx;
+        }
     }
 
-    if (!set.model()->index(0, 0, set).data().isValid()) {
+    if (!set.model()->index(0, 0, set).isValid()) {
         QString buildCmd = buildMap.value(QStringLiteral("build")).toString();
         QString cleanCmd = buildMap.value(QStringLiteral("clean")).toString();
         QString quickCmd = buildMap.value(QStringLiteral("quick")).toString();
@@ -1397,6 +1403,9 @@ void KateBuildView::slotAddProjectTarget()
         if (!quickCmd.isEmpty()) {
             m_targetsUi->targetsModel.addCommand(set, i18n("quick"), quickCmd, QString());
         }
+    } else if (defaultTgtIdx.isValid()) {
+        QModelIndex idx = m_targetsUi->proxyModel.mapFromSource(defaultTgtIdx);
+        m_targetsUi->targetsView->setCurrentIndex(idx);
     }
     const auto index = m_targetsUi->proxyModel.mapFromSource(set);
     if (index.isValid()) {
