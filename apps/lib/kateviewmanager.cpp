@@ -660,7 +660,11 @@ KTextEditor::View *KateViewManager::createView(KTextEditor::Document *doc, KateV
     m_views[view].lruAge = m_minAge--;
 
 #if defined(KF5Activities_FOUND) || defined(KF6Activities_FOUND)
+#if QT_VERSION_MAJOR == 6
+    m_views[view].activityResource = new KActivities::ResourceInstance(view->window()->windowHandle(), view);
+#else
     m_views[view].activityResource = new KActivities::ResourceInstance(view->window()->winId(), view);
+#endif
     m_views[view].activityResource->setUri(doc->url());
 #endif
 
