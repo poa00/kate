@@ -10,6 +10,8 @@
 #include <KUrlRequester>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QFormLayout>
+#include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QVBoxLayout>
@@ -18,82 +20,74 @@ KateProjectConfigPage::KateProjectConfigPage(QWidget *parent, KateProjectPlugin 
     : KTextEditor::ConfigPage(parent)
     , m_plugin(plugin)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto layout = new QFormLayout(this);
+    layout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+    layout->setFormAlignment(Qt::AlignHCenter | Qt::AlignTop);
+    layout->setContentsMargins(0, style()->pixelMetric(QStyle::PM_LayoutTopMargin), 0, 0);
 
-    QVBoxLayout *vbox = new QVBoxLayout;
-    QGroupBox *group = new QGroupBox(i18nc("Groupbox title", "Autoload Repositories"), this);
+    QGroupBox *group = new QGroupBox(QString(), this);
+    group->setFlat(true);
+    group->setContentsMargins(0, style()->pixelMetric(QStyle::PM_LayoutTopMargin), 0, 0);
     group->setWhatsThis(
         i18n("Project plugin is able to autoload repository working copies when "
              "there is no .kateproject file defined yet."));
 
+    auto autoloadLayout = new QVBoxLayout(group);
+    autoloadLayout->setContentsMargins({});
+
     m_cbAutoGit = new QCheckBox(i18n("&Git"), this);
-    vbox->addWidget(m_cbAutoGit);
+    autoloadLayout->addWidget(m_cbAutoGit);
 
     m_cbAutoSubversion = new QCheckBox(i18n("&Subversion"), this);
-    vbox->addWidget(m_cbAutoSubversion);
+    autoloadLayout->addWidget(m_cbAutoSubversion);
     m_cbAutoMercurial = new QCheckBox(i18n("&Mercurial"), this);
-    vbox->addWidget(m_cbAutoMercurial);
+    autoloadLayout->addWidget(m_cbAutoMercurial);
     m_cbAutoFossil = new QCheckBox(i18n("&Fossil"), this);
-    vbox->addWidget(m_cbAutoFossil);
+    autoloadLayout->addWidget(m_cbAutoFossil);
 
-    vbox->addStretch(1);
-    group->setLayout(vbox);
+    layout->addRow(i18nc("@label", "Autoload Repositories:"), group);
 
-    layout->addWidget(group);
-
-    vbox = new QVBoxLayout();
-    group = new QGroupBox(i18nc("Groupbox title", "Session Behavior"), this);
-    group->setWhatsThis(i18n("Session settings for projects"));
     m_cbSessionRestoreOpenProjects = new QCheckBox(i18n("Restore Open Projects"), this);
-    vbox->addWidget(m_cbSessionRestoreOpenProjects);
-    vbox->addStretch(1);
-    group->setLayout(vbox);
-    layout->addWidget(group);
+    layout->addRow(i18nc("@label", "Session Behavior:"), m_cbSessionRestoreOpenProjects);
 
-    vbox = new QVBoxLayout();
-    group = new QGroupBox(i18nc("Groupbox title", "Project Index"), this);
-    group->setWhatsThis(i18n("Project ctags index settings"));
     m_cbIndexEnabled = new QCheckBox(i18n("Enable indexing"), this);
-    vbox->addWidget(m_cbIndexEnabled);
-    auto label = new QLabel(this);
-    label->setText(i18n("Directory for index files"));
-    vbox->addWidget(label);
+    m_cbIndexEnabled->setWhatsThis(i18n("Project ctags index settings"));
+    layout->addRow(i18nc("@label", "Project Index:"), m_cbIndexEnabled);
+
     m_indexPath = new KUrlRequester(this);
     m_indexPath->setMode(KFile::Directory | KFile::ExistingOnly | KFile::LocalOnly);
     m_indexPath->setToolTip(i18n("The system temporary directory is used if not specified, which may overflow for very large repositories"));
-    vbox->addWidget(m_indexPath);
-    vbox->addStretch(1);
-    group->setLayout(vbox);
-    layout->addWidget(group);
+    m_indexPath->setMaximumWidth(300);
+    layout->addRow(i18n("Directory for index files:"), m_indexPath);
 
-    vbox = new QVBoxLayout;
-    group = new QGroupBox(i18nc("Groupbox title", "Cross-Project Functionality"), this);
+    group = new QGroupBox(this);
+    group->setFlat(true);
+    group->setContentsMargins(0, style()->pixelMetric(QStyle::PM_LayoutTopMargin), 0, 0);
+    auto vbox = new QVBoxLayout(group);
+    vbox->setContentsMargins({});
     group->setWhatsThis(i18n("Project plugin is able to perform some operations across multiple projects"));
     m_cbMultiProjectCompletion = new QCheckBox(i18n("Cross-Project Completion"), this);
     vbox->addWidget(m_cbMultiProjectCompletion);
     m_cbMultiProjectGoto = new QCheckBox(i18n("Cross-Project Goto Symbol"), this);
     vbox->addWidget(m_cbMultiProjectGoto);
-    vbox->addStretch(1);
-    group->setLayout(vbox);
-    layout->addWidget(group);
+    layout->addRow(i18nc("@label", "Cross-Project Functionality:"), group);
 
     /** Git specific **/
-    vbox = new QVBoxLayout;
-    group = new QGroupBox(i18nc("Groupbox title", "Git"), this);
+    group = new QGroupBox(this);
+    group->setFlat(true);
 
-    auto hbox = new QHBoxLayout;
-    label = new QLabel(i18n("Single click action in the git status view"), this);
+    auto grid = new QGridLayout(group);
+    grid->setContentsMargins({});
+    auto label = new QLabel(i18n("Single click action in the git status view"), this);
     m_cmbSingleClick = new QComboBox(this);
     m_cmbSingleClick->addItem(i18n("No Action"));
     m_cmbSingleClick->addItem(i18n("Show Diff"));
     m_cmbSingleClick->addItem(i18n("Open file"));
     m_cmbSingleClick->addItem(i18n("Stage / Unstage"));
     label->setBuddy(m_cmbSingleClick);
-    hbox->addWidget(label);
-    hbox->addWidget(m_cmbSingleClick);
-    vbox->addLayout(hbox);
+    grid->addWidget(label, 0, 0);
+    grid->addWidget(m_cmbSingleClick, 0, 1);
 
-    hbox = new QHBoxLayout;
     label = new QLabel(i18n("Double click action in the git status view"), this);
     m_cmbDoubleClick = new QComboBox(this);
     m_cmbDoubleClick->addItem(i18n("No Action"));
@@ -101,15 +95,10 @@ KateProjectConfigPage::KateProjectConfigPage(QWidget *parent, KateProjectPlugin 
     m_cmbDoubleClick->addItem(i18n("Open file"));
     m_cmbDoubleClick->addItem(i18n("Stage / Unstage"));
     label->setBuddy(m_cmbDoubleClick);
-    hbox->addWidget(label);
-    hbox->addWidget(m_cmbDoubleClick);
-    vbox->addLayout(hbox);
+    grid->addWidget(label, 1, 0);
+    grid->addWidget(m_cmbDoubleClick, 1, 1);
 
-    vbox->addStretch(1);
-    group->setLayout(vbox);
-    layout->addWidget(group);
-
-    layout->insertStretch(-1, 10);
+    layout->addRow(i18nc("@label", "Git:"), group);
 
     connect(m_cbAutoGit, &QCheckBox::stateChanged, this, &KateProjectConfigPage::slotMyChanged);
     connect(m_cbAutoSubversion, &QCheckBox::stateChanged, this, &KateProjectConfigPage::slotMyChanged);
