@@ -103,7 +103,7 @@ void KateSQLView::setupActions()
     KActionCollection *collection = actionCollection();
 
     action = collection->addAction(QStringLiteral("connection_create"));
-    action->setText(i18nc("@action:inmenu", "Add Connection..."));
+    action->setText(i18nc("@action:inmenu", "Add Connection…"));
     action->setIcon(QIcon::fromTheme(QStringLiteral("list-add")));
     connect(action, &QAction::triggered, this, &KateSQLView::slotConnectionCreate);
 
@@ -113,7 +113,7 @@ void KateSQLView::setupActions()
     connect(action, &QAction::triggered, this, &KateSQLView::slotConnectionRemove);
 
     action = collection->addAction(QStringLiteral("connection_edit"));
-    action->setText(i18nc("@action:inmenu", "Edit Connection..."));
+    action->setText(i18nc("@action:inmenu", "Edit Connection…"));
     action->setIcon(QIcon::fromTheme(QStringLiteral("configure")));
     connect(action, &QAction::triggered, this, &KateSQLView::slotConnectionEdit);
 

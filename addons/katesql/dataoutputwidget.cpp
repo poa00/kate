@@ -72,7 +72,7 @@ DataOutputWidget::DataOutputWidget(QWidget *parent)
     m_view->addAction(action);
     connect(action, &QAction::triggered, this, &DataOutputWidget::slotCopySelected);
 
-    action = new QAction(QIcon::fromTheme(QStringLiteral("document-export-table")), i18nc("@action:intoolbar", "Export..."), this);
+    action = new QAction(QIcon::fromTheme(QStringLiteral("document-export-table")), i18nc("@action:intoolbar", "Export…"), this);
     toolbar->addAction(action);
     m_view->addAction(action);
     connect(action, &QAction::triggered, this, &DataOutputWidget::slotExport);

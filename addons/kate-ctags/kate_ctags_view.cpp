@@ -73,7 +73,7 @@ KateCTagsView::KateCTagsView(KTextEditor::Plugin *plugin, KTextEditor::MainWindo
     connect(lookup, &QAction::triggered, this, &KateCTagsView::lookupTag);
 
     QAction *updateDB = actionCollection()->addAction(QStringLiteral("ctags_update_global_db"));
-    updateDB->setText(i18n("Configure ..."));
+    updateDB->setText(i18n("Configure …"));
     connect(updateDB, &QAction::triggered, this, [this, plugin](bool) {
         if (m_mWin) {
             KateCTagsPlugin *p = static_cast<KateCTagsPlugin *>(plugin);

@@ -100,7 +100,7 @@ void KateExternalToolsMenuAction::reload()
     }
 
     addSeparator();
-    auto cfgAction = new QAction(i18n("Configure..."), this);
+    auto cfgAction = new QAction(i18n("Configure…"), this);
     addAction(cfgAction);
     connect(cfgAction, &QAction::triggered, this, &KateExternalToolsMenuAction::showConfigPage, Qt::QueuedConnection);
 

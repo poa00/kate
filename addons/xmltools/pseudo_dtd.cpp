@@ -67,7 +67,7 @@ void PseudoDTD::analyzeDTD(QString &metaDtdUrl, QString &metaDtd)
     // count this twice, as it will be iterated twice ( TODO: optimize that? ):
     listLength += doc.elementsByTagName(QStringLiteral("attlist")).count() * 2;
 
-    QProgressDialog progress(i18n("Analyzing meta DTD..."), i18n("Cancel"), 0, listLength);
+    QProgressDialog progress(i18n("Analyzing meta DTD…"), i18n("Cancel"), 0, listLength);
     progress.setMinimumDuration(400);
     progress.setValue(0);
 

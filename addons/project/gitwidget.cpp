@@ -322,7 +322,7 @@ void GitWidget::init()
     layout->addWidget(m_treeView);
 
     m_filterLineEdit = new QLineEdit(this);
-    m_filterLineEdit->setPlaceholderText(i18n("Filter..."));
+    m_filterLineEdit->setPlaceholderText(i18n("Filter…"));
     m_filterLineEdit->setProperty("_breeze_borders_sides", QVariant::fromValue(QFlags{Qt::TopEdge}));
     layout->addWidget(m_filterLineEdit);
 
@@ -1036,7 +1036,7 @@ void GitWidget::buildMenu(KActionCollection *ac)
         branchCompareFiles(branch, QString());
     });
     a->setIcon(QIcon::fromTheme(QStringLiteral("vcs-diff")));
-    a->setText(i18n("Compare Branch with..."));
+    a->setText(i18n("Compare Branch with…"));
     m_gitMenu->addAction(a);
 
     a = ac->addAction(QStringLiteral("git_show_commit"), this, [this] {
@@ -1048,7 +1048,7 @@ void GitWidget::buildMenu(KActionCollection *ac)
         }
     });
     a->setIcon(QIcon::fromTheme(QStringLiteral("vcs-diff")));
-    a->setText(i18n("Open Commit..."));
+    a->setText(i18n("Open Commit…"));
     m_gitMenu->addAction(a);
 
     auto stashMenu = m_gitMenu->addAction(QIcon::fromTheme(QStringLiteral("vcs-stash")), i18n("Stash"));

@@ -366,7 +366,7 @@ void KateMainWindow::setupActions()
 
     a = actionCollection()->addAction(QStringLiteral("file_rename"));
     a->setIcon(QIcon::fromTheme(QStringLiteral("edit-rename")));
-    a->setText(i18nc("@action:inmenu", "Rename..."));
+    a->setText(i18nc("@action:inmenu", "Rename…"));
     connect(a, &QAction::triggered, KateApp::self()->documentManager(), [this]() {
         auto &&view = viewManager()->activeView();
         KateFileActions::renameDocumentFile(this, view->document());
@@ -496,7 +496,7 @@ void KateMainWindow::setupActions()
         a = actionCollection()->addAction(QStringLiteral("sessions_manage"));
         sessionsMenu->menu()->addAction(a);
         a->setIcon(QIcon::fromTheme(QStringLiteral("view-choose")));
-        a->setText(i18n("&Manage Sessions..."));
+        a->setText(i18n("&Manage Sessions…"));
         // Qt::QueuedConnection to avoid deletion of code that is executed when reducing the amount of mainwindows. (bug #227008)
         connect(a, &QAction::triggered, KateApp::self()->sessionManager(), &KateSessionManager::sessionManage, Qt::QueuedConnection);
 
@@ -511,7 +511,7 @@ void KateMainWindow::setupActions()
         a = actionCollection()->addAction(QStringLiteral("sessions_save_as"));
         sessionsMenu->menu()->addAction(a);
         a->setIcon(QIcon::fromTheme(QStringLiteral("document-save-as")));
-        a->setText(i18n("Save Session &As..."));
+        a->setText(i18n("Save Session &As…"));
         connect(a, &QAction::triggered, KateApp::self()->sessionManager(), &KateSessionManager::sessionSaveAs);
     }
 

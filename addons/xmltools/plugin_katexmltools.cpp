@@ -117,7 +117,7 @@ PluginKateXMLToolsView::PluginKateXMLToolsView(KTextEditor::MainWindow *mainWin)
     KXMLGUIClient::setComponentName(QStringLiteral("katexmltools"), i18n("XML Tools"));
     setXMLFile(QStringLiteral("ui.rc"));
 
-    QAction *actionInsert = new QAction(i18n("&Insert Element..."), this);
+    QAction *actionInsert = new QAction(i18n("&Insert Element…"), this);
     connect(actionInsert, &QAction::triggered, &m_model, &PluginKateXMLToolsCompletionModel::slotInsertElement);
     actionCollection()->addAction(QStringLiteral("xml_tool_insert_element"), actionInsert);
     actionCollection()->setDefaultShortcut(actionInsert, Qt::CTRL | Qt::Key_Return);
@@ -127,7 +127,7 @@ PluginKateXMLToolsView::PluginKateXMLToolsView(KTextEditor::MainWindow *mainWin)
     actionCollection()->addAction(QStringLiteral("xml_tool_close_element"), actionClose);
     actionCollection()->setDefaultShortcut(actionClose, Qt::CTRL | Qt::Key_Less);
 
-    QAction *actionAssignDTD = new QAction(i18n("Assign Meta &DTD..."), this);
+    QAction *actionAssignDTD = new QAction(i18n("Assign Meta &DTD…"), this);
     connect(actionAssignDTD, &QAction::triggered, &m_model, &PluginKateXMLToolsCompletionModel::getDTD);
     actionCollection()->addAction(QStringLiteral("xml_tool_assign"), actionAssignDTD);
 

@@ -450,7 +450,7 @@ void DiagnosticsView::setupDiagnosticViewToolbar(QVBoxLayout *mainLayout)
     });
 
     l->addWidget(m_filterLineEdit);
-    m_filterLineEdit->setPlaceholderText(i18n("Filter..."));
+    m_filterLineEdit->setPlaceholderText(i18n("Filter…"));
     m_filterLineEdit->setClearButtonEnabled(true);
     connect(m_filterLineEdit, &QLineEdit::textChanged, m_filterChangedTimer, [this] {
         m_filterChangedTimer->start();
@@ -1374,7 +1374,7 @@ void DiagnosticsView::onTextHint(KTextEditor::View *view, const KTextEditor::Cur
         constexpr int maxsize = 1000;
         if (result.size() > maxsize) {
             result.resize(maxsize);
-            result.append(QStringLiteral("..."));
+            result.append(QStringLiteral("…"));
         }
     }
 

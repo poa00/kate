@@ -32,7 +32,7 @@
 KateProjectInfoViewCodeAnalysis::KateProjectInfoViewCodeAnalysis(KateProjectPluginView *pluginView, KateProject *project)
     : m_pluginView(pluginView)
     , m_project(project)
-    , m_startStopAnalysis(new QPushButton(i18n("Start Analysis...")))
+    , m_startStopAnalysis(new QPushButton(i18n("Start Analysis…")))
     , m_analyzer(nullptr)
     , m_analysisTool(nullptr)
     , m_toolSelector(new QComboBox())

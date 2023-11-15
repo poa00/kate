@@ -219,7 +219,7 @@ KateBuildView::KateBuildView(KTextEditor::Plugin *plugin, KTextEditor::MainWindo
                                     i18n("Build"));
 
     QAction *a = actionCollection()->addAction(QStringLiteral("select_target"));
-    a->setText(i18n("Select Target..."));
+    a->setText(i18n("Select Target…"));
     a->setIcon(QIcon::fromTheme(QStringLiteral("select")));
     connect(a, &QAction::triggered, this, &KateBuildView::slotSelectTarget);
 
@@ -823,7 +823,7 @@ bool KateBuildView::buildCurrentTarget()
     }
 
     if (m_proc.state() != QProcess::NotRunning) {
-        displayBuildResult(i18n("Already building..."), KTextEditor::Message::Warning);
+        displayBuildResult(i18n("Already building…"), KTextEditor::Message::Warning);
         return false;
     }
 

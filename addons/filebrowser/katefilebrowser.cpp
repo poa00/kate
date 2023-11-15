@@ -320,7 +320,7 @@ void KateFileBrowser::fixOpenWithMenu()
         a->setData(QVariant(QList<QString>({service->entryPath(), menu->item().url().toString()})));
     }
     // append "Other..." to call the KDE "open with" dialog.
-    a = menu->addAction(i18n("&Other..."));
+    a = menu->addAction(i18n("&Other…"));
     a->setData(QVariant(QList<QString>({QString(), menu->item().url().toString()})));
 }
 

@@ -647,7 +647,7 @@ QString MatchModel::matchToHtmlString(const Match &match) const
 {
     QString pre = match.preMatchStr;
     if (match.preMatchStr.size() == PreContextLen) {
-        pre.replace(0, 3, QLatin1String("..."));
+        pre.replace(0, 3, QLatin1String("…"));
     }
     pre = pre.toHtmlEscaped();
 
@@ -674,7 +674,7 @@ QString MatchModel::matchToHtmlString(const Match &match) const
         post = post.mid(0, nlIndex);
     }
     if (post.size() == PostContextLen) {
-        post.replace(PostContextLen - 3, 3, QLatin1String("..."));
+        post.replace(PostContextLen - 3, 3, QLatin1String("…"));
     }
     post = post.toHtmlEscaped();
 

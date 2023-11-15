@@ -303,7 +303,7 @@ void CEWidget::initOptionsComboBox()
     menu->addAction(checkableAction(i18n("Filter Comments"), CE_Option_FilterComments));
     menu->addAction(checkableAction(i18n("Intel Syntax"), CE_Option_IntelAsm));
 
-    menu->addAction(i18n("Change Url..."), this, [this] {
+    menu->addAction(i18n("Change Url…"), this, [this] {
         KConfigGroup cg(KSharedConfig::openConfig(), QStringLiteral("kate_compilerexplorer"));
         QString url = cg.readEntry("kate_compilerexplorer_url", QStringLiteral("http://localhost:10240"));
 

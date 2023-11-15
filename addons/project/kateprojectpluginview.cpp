@@ -181,7 +181,7 @@ KateProjectPluginView::KateProjectPluginView(KateProjectPlugin *plugin, KTextEdi
      * back + forward
      */
     auto a = actionCollection()->addAction(QStringLiteral("projects_open_project"), this, SLOT(openDirectoryOrProject()));
-    a->setText(i18n("Open Folder..."));
+    a->setText(i18n("Open Folder…"));
     a->setIcon(QIcon::fromTheme(QStringLiteral("document-open-folder")));
     actionCollection()->setDefaultShortcut(a, QKeySequence(QKeySequence(QStringLiteral("Ctrl+T, O"), QKeySequence::PortableText)));
 

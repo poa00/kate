@@ -2364,7 +2364,7 @@ void KatePluginSearchView::searchContextMenu(const QPoint &pos)
     }
 
     if (m_ui.useRegExp->isChecked()) {
-        QMenu *menu = contextMenu->addMenu(i18n("Add..."));
+        QMenu *menu = contextMenu->addMenu(i18n("Add…"));
         if (!menu) {
             return;
         }
@@ -2398,7 +2398,7 @@ void KatePluginSearchView::replaceContextMenu(const QPoint &pos)
         return;
     }
 
-    QMenu *menu = contextMenu->addMenu(i18n("Add..."));
+    QMenu *menu = contextMenu->addMenu(i18n("Add…"));
     if (!menu) {
         return;
     }

@@ -242,7 +242,7 @@ void WelcomeView::onRecentItemsContextMenuRequested(const QPoint &pos)
         });
     };
     if (selectedIndexes.size() > 1 && allSelectedAreFiles()) {
-        QAction *action = new QAction(i18n("Open Selected Files..."), this);
+        QAction *action = new QAction(i18n("Open Selected Files…"), this);
         action->setIcon(QIcon::fromTheme(QStringLiteral("document-open")));
         connect(action, &QAction::triggered, this, [this, selectedIndexes]() {
             for (const auto &index : selectedIndexes) {

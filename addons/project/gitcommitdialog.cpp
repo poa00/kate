@@ -73,14 +73,14 @@ GitCommitDialog::GitCommitDialog(const QString &lastCommit, QWidget *parent, Qt:
     ok.setText(i18n("Commit"));
     cancel.setText(i18n("Cancel"));
 
-    m_le.setPlaceholderText(i18n("Write commit message..."));
+    m_le.setPlaceholderText(i18n("Write commit message…"));
     m_le.setFont(font);
 
     QFontMetrics fm(font);
 
     m_leLen.setText(QStringLiteral("0 / 52"));
 
-    m_pe.setPlaceholderText(i18n("Extended commit description..."));
+    m_pe.setPlaceholderText(i18n("Extended commit description…"));
     m_pe.setFont(font);
 
     /** Dialog's main layout **/

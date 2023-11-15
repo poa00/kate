@@ -35,7 +35,7 @@ void BranchCheckoutDialog::openDialog()
     GitUtils::Branch newBranch;
     newBranch.name = i18n("Create New Branch");
     GitUtils::Branch newBranchFrom;
-    newBranchFrom.name = i18n("Create New Branch From...");
+    newBranchFrom.name = i18n("Create New Branch From…");
     QList<GitUtils::Branch> branches{newBranch, newBranchFrom};
     branches << GitUtils::getAllBranches(m_projectPath);
     m_model->refresh(branches, /*checkingOut:*/ true);

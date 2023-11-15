@@ -245,7 +245,7 @@ void CloseExceptPluginView::close(const QString &item, const bool close_if_match
         }
     }
     if (docs2close.isEmpty()) {
-        displayMessage(i18nc("@title:window", "Error"), i18nc("@info:tooltip", "No files to close ..."), KTextEditor::Message::Error);
+        displayMessage(i18nc("@title:window", "Error"), i18nc("@info:tooltip", "No files to close …"), KTextEditor::Message::Error);
         return;
     }
     // Show confirmation dialog if needed
@@ -253,7 +253,7 @@ void CloseExceptPluginView::close(const QString &item, const bool close_if_match
         !m_plugin->showConfirmationNeeded() || CloseConfirmDialog(docs2close, m_show_confirmation_action, qobject_cast<QWidget *>(this)).exec();
     if (removeNeeded) {
         if (docs2close.isEmpty()) {
-            displayMessage(i18nc("@title:window", "Error"), i18nc("@info:tooltip", "No files to close ..."), KTextEditor::Message::Error);
+            displayMessage(i18nc("@title:window", "Error"), i18nc("@info:tooltip", "No files to close …"), KTextEditor::Message::Error);
         } else {
             // Close 'em all!
             KTextEditor::Editor::instance()->application()->closeDocuments(docs2close);

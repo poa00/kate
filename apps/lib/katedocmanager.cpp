@@ -382,7 +382,7 @@ void KateDocManager::restoreDocumentList(KConfig *config)
 
     QProgressDialog progress;
     progress.setWindowTitle(i18n("Starting Up"));
-    progress.setLabelText(i18n("Reopening files from the last session..."));
+    progress.setLabelText(i18n("Reopening files from the last session…"));
     progress.setModal(true);
     progress.setCancelButton(nullptr);
     progress.setRange(0, count);

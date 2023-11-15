@@ -88,7 +88,7 @@ void KateBtBrowserPlugin::startIndexer()
     indexer.setSearchPaths(cg.readEntry("search-folders", QStringList()));
     indexer.setFilter(cg.readEntry("file-extensions", fileExtensions));
     indexer.start();
-    Q_EMIT newStatus(i18n("Indexing files..."));
+    Q_EMIT newStatus(i18n("Indexing files…"));
 }
 
 int KateBtBrowserPlugin::configPages() const

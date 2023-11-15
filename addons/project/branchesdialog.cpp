@@ -97,7 +97,7 @@ BranchesDialog::BranchesDialog(QWidget *window, QString projectPath)
 
 void BranchesDialog::openDialog(GitUtils::RefType r)
 {
-    m_lineEdit.setPlaceholderText(i18n("Select Branch..."));
+    m_lineEdit.setPlaceholderText(i18n("Select Branch…"));
 
     QList<GitUtils::Branch> branches = GitUtils::getAllBranchesAndTags(m_projectPath, r);
     m_model->refresh(branches);

@@ -1635,7 +1635,7 @@ public:
             return;
         }
 
-        QPointer<QAction> loadingAction = m_requestCodeAction->menu()->addAction(i18n("Loading..."));
+        QPointer<QAction> loadingAction = m_requestCodeAction->menu()->addAction(i18n("Loading…"));
         loadingAction->setEnabled(false);
 
         // store some things to find item safely later on
