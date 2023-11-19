@@ -7,6 +7,7 @@
 
 #include "kateprojectplugin.h"
 
+#include "qcmakefileapi.h"
 #include "kateproject.h"
 #include "kateprojectconfigpage.h"
 #include "kateprojectpluginview.h"
@@ -41,11 +42,13 @@ const QString GitFolderName = QStringLiteral(".git");
 const QString SubversionFolderName = QStringLiteral(".svn");
 const QString MercurialFolderName = QStringLiteral(".hg");
 const QString FossilCheckoutFileName = QStringLiteral(".fslckout");
+const QString CMakeCacheFileName = QStringLiteral("CMakeCache.txt");
 
 const QString GitConfig = QStringLiteral("git");
 const QString SubversionConfig = QStringLiteral("subversion");
 const QString MercurialConfig = QStringLiteral("mercurial");
 const QString FossilConfig = QStringLiteral("fossil");
+const QString CMakeConfig = QStringLiteral("cmake");
 
 const QStringList DefaultConfig = QStringList() << GitConfig << SubversionConfig << MercurialConfig;
 }
@@ -329,6 +332,16 @@ KateProject *KateProjectPlugin::detectFossil(const QDir &dir)
     return nullptr;
 }
 
+KateProject *KateProjectPlugin::detectCMakeBuildTree(const QDir &dir)
+{
+    if (m_autoCMake && dir.exists(CMakeCacheFileName) && QFileInfo(dir, CMakeCacheFileName).isFile()) {
+        return createProjectForCMakeBuildTree(dir);
+    }
+
+    return nullptr;
+}
+
+
 KateProject *KateProjectPlugin::createProjectForRepository(const QString &type, const QDir &dir)
 {
     // check if we already have the needed project opened
@@ -387,12 +400,94 @@ KateProject *KateProjectPlugin::createProjectForDirectory(const QDir &dir, const
     return project;
 }
 
-void KateProjectPlugin::setAutoRepository(bool onGit, bool onSubversion, bool onMercurial, bool onFossil)
+KateProject *KateProjectPlugin::createProjectForCMakeBuildTree(const QDir &dir)
+{
+    QCMakeFileApi cmakeFA(dir.absolutePath());
+    if (!cmakeFA.haveKateReplyFiles())
+    {
+        cmakeFA.writeQueryFiles();
+        bool success = cmakeFA.runCMake();
+        qDebug() << "cmake success: " << success;
+    }
+
+    if (!cmakeFA.haveKateReplyFiles())
+    {
+        qDebug() << "generating reply files failed !";
+        return nullptr;
+    }
+
+    bool success = cmakeFA.readReplyFiles();
+    qDebug() << "reply success: " << success;
+
+    QVariantMap cnf;
+    QString projectName = QStringLiteral("%1@%2").arg(cmakeFA.getProjectName()).arg(cmakeFA.getBuildDir());
+    cnf[QStringLiteral("name")] = projectName;
+    cnf[QStringLiteral("directory")] = cmakeFA.getSourceDir();
+
+    QStringList filesList;
+    for(const QString& srcFile : cmakeFA.getSourceFiles())
+    {
+        filesList << srcFile;
+    }
+    QVariantMap files;
+    files[QStringLiteral("list")] = filesList;
+    cnf[QStringLiteral("files")] = (QVariantList() << files); //files;
+
+    QVariantMap buildMap;
+    buildMap[QStringLiteral("directory")] = cmakeFA.getBuildDir();
+    QVariantList targetList;
+
+    QVariantMap tgtMapRerunCMake;
+    tgtMapRerunCMake[QStringLiteral("name")] = QStringLiteral("Rerun CMake");
+    tgtMapRerunCMake[QStringLiteral("build_cmd")] = QStringLiteral("%1 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B \"%2\" -S \"%3\"").arg(cmakeFA.getCMakeExecutable())
+                                                                              .arg(cmakeFA.getBuildDir())
+                                                                              .arg(cmakeFA.getSourceDir());
+    targetList << tgtMapRerunCMake;
+
+    QString cmakeGui = cmakeFA.getCMakeGuiExecutable();
+    qDebug() << "cmakeGui: " << cmakeGui;
+    if (!cmakeGui.isEmpty()) {
+      QVariantMap tgtMapRunCMakeGui;
+      tgtMapRunCMakeGui[QStringLiteral("name")] = QStringLiteral("Run CMake-Gui");
+      tgtMapRunCMakeGui[QStringLiteral("build_cmd")] = QStringLiteral("%1 -B \"%2\"").arg(cmakeGui)
+                                                                              .arg(cmakeFA.getBuildDir());
+      targetList << tgtMapRunCMakeGui;
+    }
+
+    const QString emptyConfig(QStringLiteral(" - "));
+    for(const QCMakeFileApi::TargetDef& tgt : cmakeFA.getTargets())
+    {
+        QVariantMap tgtMap;
+        tgtMap[QStringLiteral("name")] = QStringLiteral("[%1] %2").arg(tgt.config.isEmpty() ? emptyConfig : tgt.config).arg(tgt.name);
+        tgtMap[QStringLiteral("build_cmd")] = QStringLiteral("%1 --build \"%2\" --config \"%3\" --target \"%4\"").arg(cmakeFA.getCMakeExecutable())
+                                                                              .arg(cmakeFA.getBuildDir())
+                                                                              .arg(tgt.config)
+                                                                              .arg(tgt.name);
+        targetList << tgtMap;
+    }
+
+    buildMap[QStringLiteral("targets")] = targetList;
+    cnf[QStringLiteral("build")] = buildMap;
+
+    QFile::copy(cmakeFA.getBuildDir() + QStringLiteral("/compile_commands.json"), cmakeFA.getSourceDir() + QStringLiteral("/compile_commands.json"));
+    qDebug() << "------------- copied b: " << cmakeFA.getBuildDir() << " s: " << cmakeFA.getSourceDir();
+
+    KateProject *project = new KateProject(m_threadPool, this, cnf, dir.absolutePath());
+
+    m_projects.append(project);
+
+    Q_EMIT projectCreated(project);
+    return project;
+
+}
+
+void KateProjectPlugin::setAutoRepository(bool onGit, bool onSubversion, bool onMercurial, bool onFossil, bool onCMake)
 {
     m_autoGit = onGit;
     m_autoSubversion = onSubversion;
     m_autoMercurial = onMercurial;
     m_autoFossil = onFossil;
+    m_autoCMake = onCMake;
     writeConfig();
 }
 
@@ -414,6 +509,11 @@ bool KateProjectPlugin::autoMercurial() const
 bool KateProjectPlugin::autoFossil() const
 {
     return m_autoFossil;
+}
+
+bool KateProjectPlugin::autoCMake() const
+{
+    return m_autoCMake;
 }
 
 void KateProjectPlugin::setIndex(bool enabled, const QUrl &directory)
@@ -492,6 +592,7 @@ void KateProjectPlugin::readConfig()
     m_autoSubversion = autorepository.contains(SubversionConfig);
     m_autoMercurial = autorepository.contains(MercurialConfig);
     m_autoFossil = autorepository.contains(FossilConfig);
+    m_autoCMake = autorepository.contains(CMakeConfig);
 
     m_indexEnabled = config.readEntry("index", false);
     m_indexDirectory = config.readEntry("indexDirectory", QUrl());
@@ -526,6 +627,10 @@ void KateProjectPlugin::writeConfig()
 
     if (m_autoFossil) {
         repos << FossilConfig;
+    }
+
+    if (m_autoCMake) {
+        repos << CMakeConfig;
     }
 
     config.writeEntry("autorepository", repos);

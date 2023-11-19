@@ -52,6 +52,7 @@ target_sources(
     comparebranchesview.cpp
     branchdeletedialog.cpp
     currentgitbranchbutton.cpp
+    qcmakefileapi.cpp
 
     tools/clazy.cpp
     tools/clazycurrent.cpp

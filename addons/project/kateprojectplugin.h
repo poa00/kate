@@ -119,11 +119,12 @@ public:
         return (it != m_document2Project.end()) ? it->second : nullptr;
     }
 
-    void setAutoRepository(bool onGit, bool onSubversion, bool onMercurial, bool onFossil);
+    void setAutoRepository(bool onGit, bool onSubversion, bool onMercurial, bool onFossil, bool onCMake);
     bool autoGit() const;
     bool autoSubversion() const;
     bool autoMercurial() const;
     bool autoFossil() const;
+    bool autoCMake() const;
 
     void setIndex(bool enabled, const QUrl &directory);
     bool getIndexEnabled() const;
@@ -218,10 +219,13 @@ private:
     KateProject *createProjectForRepository(const QString &type, const QDir &dir);
     KateProject *createProjectForDirectory(const QDir &dir);
     KateProject *createProjectForDirectory(const QDir &dir, const QVariantMap &projectMap);
+    KateProject *createProjectForCMakeBuildTree(const QDir &dir);
+
     KateProject *detectGit(const QDir &dir);
     KateProject *detectSubversion(const QDir &dir);
     KateProject *detectMercurial(const QDir &dir);
     KateProject *detectFossil(const QDir &dir);
+    KateProject *detectCMakeBuildTree(const QDir &dir);
 
     void readSessionConfig(const KConfigGroup &config) override;
     void writeSessionConfig(KConfigGroup &config) override;
@@ -262,6 +266,7 @@ private:
     bool m_autoSubversion = true;
     bool m_autoMercurial = true;
     bool m_autoFossil = true;
+    bool m_autoCMake = true;
 
     // restore projects on session loading?
     bool m_restoreProjectsForSession = true;
