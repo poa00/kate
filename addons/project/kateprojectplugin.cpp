@@ -188,7 +188,8 @@ KateProject *KateProjectPlugin::projectForDir(QDir dir, bool userSpecified)
     for (const QString &dir : directoryStack) {
         // try to invent project based on version control stuff
         KateProject *project = nullptr;
-        if ((project = detectGit(dir)) || (project = detectSubversion(dir)) || (project = detectMercurial(dir)) || (project = detectFossil(dir))) {
+        if ((project = detectGit(dir)) || (project = detectSubversion(dir)) || (project = detectMercurial(dir)) || (project = detectFossil(dir))
+            || (project = detectCMakeBuildTree(dir))) {
             return project;
         }
     }
