@@ -13,6 +13,7 @@
 #include <QFileSystemWatcher>
 #include <QThreadPool>
 
+#include <KTextEditor/Message>
 #include <KTextEditor/Plugin>
 #include <KTextEditor/SessionConfigInterface>
 #include <ktexteditor/document.h>
@@ -119,6 +120,14 @@ public:
         return (it != m_document2Project.end()) ? it->second : nullptr;
     }
 
+    /**
+     * Check if given command line is allowed to be executed.
+     * Might ask the user for permission.
+     * @param cmdline full command line including program to check
+     * @return execution allowed?
+     */
+    bool isCommandLineAllowed(const QStringList &cmdline);
+
     void setAutoRepository(bool onGit, bool onSubversion, bool onMercurial, bool onFossil, bool onCMake);
     bool autoGit() const;
     bool autoSubversion() const;
@@ -196,6 +205,8 @@ Q_SIGNALS:
      * Signal that plugin configuration changed
      */
     void configUpdated();
+
+    void showMessage(KTextEditor::Message::MessageType level, const QString &msg);
 
 public Q_SLOTS:
     /**

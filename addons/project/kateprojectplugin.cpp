@@ -25,7 +25,7 @@
 #include <KNetworkMounts>
 #include <KSharedConfig>
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QMessageBox>
@@ -840,6 +840,42 @@ QVariantMap KateProjectPlugin::projectMapForDocument(KTextEditor::Document *doc)
         project = projectForUrl(doc->url());
     }
     return project ? project->projectMap() : QVariantMap();
+}
+
+bool KateProjectPlugin::isCommandLineAllowed(const QStringList &cmdline)
+{
+    // check our allow list
+    // if we already have stored some value, perfect, just use that one
+    const QString fullCommandLineString = cmdline.join(QStringLiteral(" "));
+    if (const auto it = m_commandLineToAllowedState.find(fullCommandLineString); it != m_commandLineToAllowedState.end()) {
+        return it->second;
+    }
+
+    // ask user if the start should be allowed
+    QPointer<QMessageBox> msgBox(new QMessageBox(QApplication::activeWindow()));
+    msgBox->setWindowTitle(i18n("Project plugin wants to execute program"));
+    msgBox->setTextFormat(Qt::RichText);
+    msgBox->setText(
+        i18n("The project plugin needs to execute external command for project loading.<br><br>The full command line is:<br><br><b>%1</b><br><br>The choice "
+             "can be altered via the config page "
+             "of the plugin.",
+             fullCommandLineString.toHtmlEscaped()));
+    msgBox->setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox->setDefaultButton(QMessageBox::Yes);
+    const bool allowed = (msgBox->exec() == QMessageBox::Yes);
+
+    // store new configured value
+    m_commandLineToAllowedState.emplace(fullCommandLineString, allowed);
+
+    // inform the user if it was forbidden! do this here to just emit this once
+    if (!allowed) {
+        Q_EMIT showMessage(KTextEditor::Message::Information,
+                           i18n("User permanently blocked start of: '%1'.\nUse the config page of the plugin to undo this block.", fullCommandLineString));
+    }
+
+    // flush config to not loose that setting
+    writeConfig();
+    return allowed;
 }
 
 #include "moc_kateprojectplugin.cpp"
