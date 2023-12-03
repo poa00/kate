@@ -6,6 +6,8 @@
 #include "qcmakefileapi.h"
 #include "kateprojectplugin.h"
 
+#include "hostprocess.h"
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -41,7 +43,8 @@ QCMakeFileApi::QCMakeFileApi(const QString& cmakeCacheFile)
     
     qDebug() << "builddir: " << m_buildDir << " cachefile: " << m_cacheFile;
 
-    m_cmakeExecutable = findCMakeExecutable(m_cacheFile);
+    // get cmake name from file, ensure in any case we compute some absolute name, beside inside containers
+    m_cmakeExecutable = safeExecutableName(findCMakeExecutable(m_cacheFile));
 }
 
 
