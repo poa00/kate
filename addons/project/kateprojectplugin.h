@@ -268,6 +268,9 @@ private:
     bool m_autoFossil = true;
     bool m_autoCMake = true;
 
+    // hash of allowed and blacklisted command lines
+    std::map<QString, bool> m_commandLineToAllowedState;
+
     // restore projects on session loading?
     bool m_restoreProjectsForSession = true;
 

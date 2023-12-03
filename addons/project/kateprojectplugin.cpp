@@ -51,6 +51,9 @@ const QString FossilConfig = QStringLiteral("fossil");
 const QString CMakeConfig = QStringLiteral("cmake");
 
 const QStringList DefaultConfig = QStringList() << GitConfig << SubversionConfig << MercurialConfig;
+
+const QString CONFIG_ALLOWED_COMMANDS{QStringLiteral("AllowedCommandLines")};
+const QString CONFIG_BLOCKED_COMMANDS{QStringLiteral("BlockedCommandLines")};
 }
 
 KateProjectPlugin::KateProjectPlugin(QObject *parent, const QVariantList &)
@@ -605,6 +608,17 @@ void KateProjectPlugin::readConfig()
 
     m_restoreProjectsForSession = config.readEntry("restoreProjectsForSessions", false);
 
+    // read allow + block lists as two separate keys, let block always win
+    const auto allowed = config.readEntry(CONFIG_ALLOWED_COMMANDS, QStringList());
+    const auto blocked = config.readEntry(CONFIG_BLOCKED_COMMANDS, QStringList());
+    m_commandLineToAllowedState.clear();
+    for (const auto &cmd : allowed) {
+        m_commandLineToAllowedState[cmd] = true;
+    }
+    for (const auto &cmd : blocked) {
+        m_commandLineToAllowedState[cmd] = false;
+    }
+
     Q_EMIT configUpdated();
 }
 
@@ -645,6 +659,18 @@ void KateProjectPlugin::writeConfig()
     config.writeEntry("gitStatusDoubleClick", (int)m_doubleClickAction);
 
     config.writeEntry("restoreProjectsForSessions", m_restoreProjectsForSession);
+
+    // write allow + block lists as two separate keys
+    QStringList allowed, blocked;
+    for (const auto &it : m_commandLineToAllowedState) {
+        if (it.second) {
+            allowed.push_back(it.first);
+        } else {
+            blocked.push_back(it.first);
+        }
+    }
+    config.writeEntry(CONFIG_ALLOWED_COMMANDS, allowed);
+    config.writeEntry(CONFIG_BLOCKED_COMMANDS, blocked);
 
     Q_EMIT configUpdated();
 }
