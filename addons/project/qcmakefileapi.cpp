@@ -4,6 +4,7 @@
 */
 
 #include "qcmakefileapi.h"
+#include "kateprojectplugin.h"
 
 #include <QDir>
 #include <QFile>
@@ -82,14 +83,18 @@ QString QCMakeFileApi::findCMakeExecutable(const QString& cmakeCacheFile) const
     return QString(QStringLiteral("cmake"));
 }
 
-
-bool QCMakeFileApi::runCMake()
+bool QCMakeFileApi::runCMake(KateProjectPlugin *plugin)
 {
+    // first ask the user if this is allowed
+    QStringList commandLine = {m_cmakeExecutable, QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"), m_buildDir};
+    if (!plugin->isCommandLineAllowed(commandLine)) {
+        return false;
+    }
+
     m_cmakeSuccess = true;
     QProcess cmakeProc;
-    cmakeProc.setProgram(m_cmakeExecutable);
-    cmakeProc.setWorkingDirectory(m_buildDir);
-    cmakeProc.setArguments({QStringLiteral("-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"), QStringLiteral(".")});
+    cmakeProc.setProgram(commandLine.takeFirst());
+    cmakeProc.setArguments(commandLine);
     connect(&cmakeProc, &QProcess::started, this, &QCMakeFileApi::handleStarted);
     connect(&cmakeProc, &QProcess::stateChanged, this, &QCMakeFileApi::handleStateChanged);
     connect(&cmakeProc, &QProcess::errorOccurred, this, &QCMakeFileApi::handleError);

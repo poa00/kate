@@ -409,7 +409,7 @@ KateProject *KateProjectPlugin::createProjectForCMakeBuildTree(const QDir &dir)
     if (!cmakeFA.haveKateReplyFiles())
     {
         cmakeFA.writeQueryFiles();
-        bool success = cmakeFA.runCMake();
+        bool success = cmakeFA.runCMake(this);
         qDebug() << "cmake success: " << success;
     }
 

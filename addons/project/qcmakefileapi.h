@@ -26,9 +26,9 @@ public:
     };
 
     QCMakeFileApi(const QString& buildDir);
-    
-    bool runCMake();
-    
+
+    bool runCMake(class KateProjectPlugin *plugin);
+
     const QString& getCMakeExecutable() const;
     QString getCMakeGuiExecutable() const;
     
