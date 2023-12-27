@@ -264,7 +264,7 @@ KateProject *KateProjectPlugin::projectForUrl(const QUrl &url)
 void KateProjectPlugin::slotDocumentCreated(KTextEditor::Document *document)
 {
     connect(document, &KTextEditor::Document::documentUrlChanged, this, &KateProjectPlugin::slotDocumentUrlChanged);
-    connect(document, &KTextEditor::Document::destroyed, this, &KateProjectPlugin::slotDocumentDestroyed);
+    connect(document, &KTextEditor::Document::aboutToClose, this, &KateProjectPlugin::slotDocumentDestroyed);
 
     slotDocumentUrlChanged(document);
 }
