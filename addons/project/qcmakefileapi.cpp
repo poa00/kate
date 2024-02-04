@@ -271,7 +271,6 @@ bool QCMakeFileApi::readReplyFiles()
             }
         }
         QJsonArray targets = configObj.value(QStringLiteral("targets")).toArray();
-        m_targets.push_back({QStringLiteral("clean"), configName});
         for(int tgtIdx=0; tgtIdx<targets.count(); tgtIdx++)
         {
             QJsonObject targetObj = targets.at(tgtIdx).toObject();

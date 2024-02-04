@@ -460,29 +460,28 @@ KateProject *KateProjectPlugin::createProjectForCMakeBuildTree(const QDir &dir)
     }
 
     const int numCores = QThread::idealThreadCount();
-    const QString emptyConfig(QStringLiteral(" - "));
 
-    for(const QString& config : cmakeFA.getConfigurations()) {
+    auto makeTargetMap = [numCores, &cmakeFA](const QString& config, const QString& targetGuiName, const QString targetName) {
+        const QString emptyConfig(QStringLiteral(" - "));
         QVariantMap tgtMap;
-        tgtMap[QStringLiteral("name")] = QStringLiteral("[%1] ALL").arg(config.isEmpty() ? emptyConfig : config);
-        tgtMap[QStringLiteral("build_cmd")] = QStringLiteral("%1 --build \"%2\" --config \"%3\" --parallel %4")
+        tgtMap[QStringLiteral("name")] = QStringLiteral("[%1] %2").arg(config.isEmpty() ? emptyConfig : config).arg(targetGuiName);
+        tgtMap[QStringLiteral("build_cmd")] = QStringLiteral("%1 --build \"%2\" --config \"%3\" --parallel %4 %5")
                                                                               .arg(cmakeFA.getCMakeExecutable())
                                                                               .arg(cmakeFA.getBuildDir())
                                                                               .arg(config)
-                                                                              .arg(numCores);
-        targetList << tgtMap;
+                                                                              .arg(numCores)
+                                                                              .arg(targetName.isEmpty() ? QStringLiteral("")
+                                                                                                        : QStringLiteral(" --target \"%1\"").arg(targetName));
+        return tgtMap;
+    };
+
+    for(const QString& config : cmakeFA.getConfigurations()) {
+        targetList << makeTargetMap(config, QStringLiteral("All"), QStringLiteral());
+        targetList << makeTargetMap(config, QStringLiteral("Clean"), QStringLiteral("clean"));
     }
 
     for(const QCMakeFileApi::TargetDef& tgt : cmakeFA.getTargets()) {
-        QVariantMap tgtMap;
-        tgtMap[QStringLiteral("name")] = QStringLiteral("[%1] %2").arg(tgt.config.isEmpty() ? emptyConfig : tgt.config).arg(tgt.name);
-        tgtMap[QStringLiteral("build_cmd")] = QStringLiteral("%1 --build \"%2\" --config \"%3\" --target \"%4\" --parallel %5")
-                                                                              .arg(cmakeFA.getCMakeExecutable())
-                                                                              .arg(cmakeFA.getBuildDir())
-                                                                              .arg(tgt.config)
-                                                                              .arg(tgt.name)
-                                                                              .arg(numCores);
-        targetList << tgtMap;
+        targetList << makeTargetMap(tgt.config, tgt.name, tgt.name);
     }
 
     buildMap[QStringLiteral("targets")] = targetList;
