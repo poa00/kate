@@ -37,7 +37,8 @@ public:
     bool readReplyFiles();
 
     bool haveKateReplyFiles() const;
-    
+
+    const std::vector<QString>& getConfigurations() const;
     const QString& getProjectName() const;
     const QString& getBuildDir() const;
     const QString& getSourceDir() const;
@@ -65,4 +66,5 @@ private:
 
     std::set<QString> m_sourceFiles;
     std::vector<TargetDef> m_targets;
+    std::vector<QString> m_configs;
 };

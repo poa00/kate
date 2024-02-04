@@ -255,6 +255,7 @@ bool QCMakeFileApi::readReplyFiles()
         QJsonObject configObj = configs.at(i).toObject();
         QString configName = configObj.value(QStringLiteral("name")).toString();
         qWarning() << "config: " << configName;
+        m_configs.push_back(configName);
         QJsonArray projects = configObj.value(QStringLiteral("projects")).toArray();
         for(int projIdx=0; projIdx<projects.count(); projIdx++)
         {
@@ -305,6 +306,10 @@ const QString& QCMakeFileApi::getProjectName() const
     return m_projectName;
 }
 
+const std::vector<QString> &QCMakeFileApi::getConfigurations() const
+{
+    return m_configs;
+}
 
 const std::set<QString>& QCMakeFileApi::getSourceFiles() const
 {

@@ -461,8 +461,19 @@ KateProject *KateProjectPlugin::createProjectForCMakeBuildTree(const QDir &dir)
 
     const int numCores = QThread::idealThreadCount();
     const QString emptyConfig(QStringLiteral(" - "));
-    for(const QCMakeFileApi::TargetDef& tgt : cmakeFA.getTargets())
-    {
+
+    for(const QString& config : cmakeFA.getConfigurations()) {
+        QVariantMap tgtMap;
+        tgtMap[QStringLiteral("name")] = QStringLiteral("[%1] ALL").arg(config.isEmpty() ? emptyConfig : config);
+        tgtMap[QStringLiteral("build_cmd")] = QStringLiteral("%1 --build \"%2\" --config \"%3\" --parallel %4")
+                                                                              .arg(cmakeFA.getCMakeExecutable())
+                                                                              .arg(cmakeFA.getBuildDir())
+                                                                              .arg(config)
+                                                                              .arg(numCores);
+        targetList << tgtMap;
+    }
+
+    for(const QCMakeFileApi::TargetDef& tgt : cmakeFA.getTargets()) {
         QVariantMap tgtMap;
         tgtMap[QStringLiteral("name")] = QStringLiteral("[%1] %2").arg(tgt.config.isEmpty() ? emptyConfig : tgt.config).arg(tgt.name);
         tgtMap[QStringLiteral("build_cmd")] = QStringLiteral("%1 --build \"%2\" --config \"%3\" --target \"%4\" --parallel %5")
