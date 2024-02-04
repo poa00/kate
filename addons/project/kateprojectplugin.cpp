@@ -32,6 +32,7 @@
 #include <QString>
 #include <QTime>
 #include <QTimer>
+#include <QThread>
 
 #include <vector>
 
@@ -458,15 +459,18 @@ KateProject *KateProjectPlugin::createProjectForCMakeBuildTree(const QDir &dir)
       targetList << tgtMapRunCMakeGui;
     }
 
+    const int numCores = QThread::idealThreadCount();
     const QString emptyConfig(QStringLiteral(" - "));
     for(const QCMakeFileApi::TargetDef& tgt : cmakeFA.getTargets())
     {
         QVariantMap tgtMap;
         tgtMap[QStringLiteral("name")] = QStringLiteral("[%1] %2").arg(tgt.config.isEmpty() ? emptyConfig : tgt.config).arg(tgt.name);
-        tgtMap[QStringLiteral("build_cmd")] = QStringLiteral("%1 --build \"%2\" --config \"%3\" --target \"%4\"").arg(cmakeFA.getCMakeExecutable())
+        tgtMap[QStringLiteral("build_cmd")] = QStringLiteral("%1 --build \"%2\" --config \"%3\" --target \"%4\" --parallel %5")
+                                                                              .arg(cmakeFA.getCMakeExecutable())
                                                                               .arg(cmakeFA.getBuildDir())
                                                                               .arg(tgt.config)
-                                                                              .arg(tgt.name);
+                                                                              .arg(tgt.name)
+                                                                              .arg(numCores);
         targetList << tgtMap;
     }
 
