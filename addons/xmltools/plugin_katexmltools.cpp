@@ -88,6 +88,7 @@ TODO:
 #include <KPluginFactory>
 #include <KXMLGUIClient>
 #include <kio/job.h>
+#include <KIO/TransferJob>
 #include <kio/jobuidelegate.h>
 #include <kxmlguifactory.h>
 #include <map>
