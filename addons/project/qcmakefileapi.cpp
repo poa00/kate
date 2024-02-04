@@ -185,7 +185,6 @@ bool QCMakeFileApi::haveKateReplyFiles() const
     return (replyObj.contains(QStringLiteral("client-kate")) && (replyObj.value(QStringLiteral("client-kate")).isObject()));
 }
 
-
 bool QCMakeFileApi::readReplyFiles()
 {
     const QDir replyDir(QStringLiteral("%1/.cmake/api/v1/reply/").arg(m_buildDir));
@@ -276,21 +275,22 @@ bool QCMakeFileApi::readReplyFiles()
             QJsonObject targetObj = targets.at(tgtIdx).toObject();
             QString targetName = targetObj.value(QStringLiteral("name")).toString();
 
-            m_targets.push_back({targetName, configName});
-            
             QString targetJsonFile = targetObj.value(QStringLiteral("jsonFile")).toString();
             
             qWarning() << "config: " << configName << " target: " << targetName << " json: " << targetJsonFile;
             
-
             QJsonObject targetDoc = readJsonFile(targetJsonFile);
-            QJsonArray sources = targetDoc.value(QStringLiteral("sources")).toArray();
-            for(int srcIdx=0; srcIdx<sources.count(); srcIdx++)
-            {
-                QJsonObject sourceObj = sources.at(srcIdx).toObject();
-                QString filePath = sourceObj.value(QStringLiteral("path")).toString();
-                qWarning() << "source: " << filePath;
-                m_sourceFiles.insert(filePath);
+            bool fromGenerator = targetDoc.value(QStringLiteral("isGeneratorProvided")).toBool();
+            if (!fromGenerator) {
+                m_targets.push_back({targetName, configName});
+
+                QJsonArray sources = targetDoc.value(QStringLiteral("sources")).toArray();
+                for(int srcIdx=0; srcIdx<sources.count(); srcIdx++) {
+                    QJsonObject sourceObj = sources.at(srcIdx).toObject();
+                    QString filePath = sourceObj.value(QStringLiteral("path")).toString();
+                    qWarning() << "source: " << filePath;
+                    m_sourceFiles.insert(filePath);
+                }
             }
         }
     }
