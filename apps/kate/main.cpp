@@ -9,6 +9,8 @@
 #include "kateapp.h"
 
 #include <KAboutData>
+#include <KIconEngine>
+#include <KIconLoader>
 #include <KLocalizedString>
 
 // X11 startup handling
@@ -24,6 +26,7 @@
 #include <QDBusMessage>
 #include <QDBusReply>
 #include <QIcon>
+#include <QIconEnginePlugin>
 #include <QJsonDocument>
 #include <QRegularExpression>
 #include <QSessionManager>
@@ -48,6 +51,15 @@
 #else
 #include "SingleApplication/SingleApplication"
 #endif
+
+class KIconEnginePlugin : public QIconEnginePlugin
+{
+public:
+    QIconEngine *create(const QString &file) override
+    {
+        return new KIconEngine(file, KIconLoader::global());
+    }
+};
 
 int main(int argc, char **argv)
 {
@@ -78,6 +90,8 @@ int main(int argc, char **argv)
 #else
     SingleApplication app(argc, argv, true);
 #endif
+
+    QIcon::setEngine(new KIconEnginePlugin);
 
     /**
      * Enforce application name even if the executable is renamed
