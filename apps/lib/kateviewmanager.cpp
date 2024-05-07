@@ -30,6 +30,7 @@
 #include <KXMLGUIFactory>
 
 #include <QFileDialog>
+#include <QScopedValueRollback>
 #include <QTimer>
 
 // END Includes
@@ -91,10 +92,7 @@ KateViewManager::~KateViewManager()
     /**
      * remove the single client that is registered at the factory, if any
      */
-    if (m_guiMergedView) {
-        mainWindow()->guiFactory()->removeClient(m_guiMergedView);
-        m_guiMergedView = nullptr;
-    }
+    removePluggedClient();
 }
 
 void KateViewManager::readConfig()
@@ -730,8 +728,7 @@ bool KateViewManager::deleteView(KTextEditor::View *view)
      * deregister if needed
      */
     if (m_guiMergedView == view) {
-        mainWindow()->guiFactory()->removeClient(m_guiMergedView);
-        m_guiMergedView = nullptr;
+        removePluggedClient();
     }
 
     // remove view from mapping and memory !!
@@ -822,20 +819,24 @@ void KateViewManager::activateSpace(KTextEditor::View *v)
 void KateViewManager::replugActiveView()
 {
     if (m_guiMergedView) {
-        mainWindow()->guiFactory()->removeClient(m_guiMergedView);
-        mainWindow()->guiFactory()->addClient(m_guiMergedView);
+        auto view = m_guiMergedView;
+        removePluggedClient();
+        mainWindow()->guiFactory()->addClient(view);
+        m_guiMergedView = view;
     }
 }
 
 void KateViewManager::activateView(KTextEditor::View *view)
 {
     if (!view) {
-        if (m_guiMergedView) {
-            mainWindow()->guiFactory()->removeClient(m_guiMergedView);
-            m_guiMergedView = nullptr;
-        }
+        removePluggedClient();
         Q_EMIT viewChanged(nullptr);
         updateViewSpaceActions();
+        return;
+    }
+
+    if (m_xmlGuiClientBeingRemoved) {
+        // a client is being removed, ignore this spurious activate
         return;
     }
 
@@ -854,10 +855,7 @@ void KateViewManager::activateView(KTextEditor::View *view)
             mainWindow()->toolBar()->hide(); // hide to avoid toolbar flickering
         }
 
-        if (m_guiMergedView) {
-            mainWindow()->guiFactory()->removeClient(m_guiMergedView);
-            m_guiMergedView = nullptr;
-        }
+        removePluggedClient();
 
         if (!m_blockViewCreationAndActivation) {
             mainWindow()->guiFactory()->addClient(view);
@@ -1475,6 +1473,15 @@ void KateViewManager::removeViewSpace(KateViewSpace *viewspace)
     Q_EMIT viewChanged(v);
 }
 
+void KateViewManager::removePluggedClient()
+{
+    if (m_guiMergedView) {
+        QScopedValueRollback _(m_xmlGuiClientBeingRemoved, true);
+        mainWindow()->guiFactory()->removeClient(m_guiMergedView);
+        m_guiMergedView = nullptr;
+    }
+}
+
 void KateViewManager::slotCloseOtherViews()
 {
     // avoid flicker
@@ -1527,10 +1534,7 @@ void KateViewManager::restoreViewConfiguration(const KConfigGroup &config)
     /**
      * remove the single client that is registered at the factory, if any
      */
-    if (m_guiMergedView) {
-        mainWindow()->guiFactory()->removeClient(m_guiMergedView);
-        m_guiMergedView = nullptr;
-    }
+    removePluggedClient();
 
     /**
      * delete viewspaces, they will delete the views

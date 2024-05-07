@@ -146,6 +146,8 @@ private:
 
     void removeViewSpace(KateViewSpace *viewspace);
 
+    void removePluggedClient();
+
 public:
     KTextEditor::View *activeView();
     KateViewSpace *activeViewSpace();
@@ -367,6 +369,8 @@ private:
     QAction *goDown = nullptr;
 
     std::vector<KateViewSpace *> m_viewSpaceList;
+
+    bool m_xmlGuiClientBeingRemoved = false;
 
     bool m_blockViewCreationAndActivation;
 
