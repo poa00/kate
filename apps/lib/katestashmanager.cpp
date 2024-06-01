@@ -22,7 +22,11 @@ void KateStashManager::clearStashForSession(const KateSession::Ptr session)
     QDir dir(appDataPath);
     if (dir.exists(QStringLiteral("stash"))) {
         dir.cd(QStringLiteral("stash"));
-        const QString sessionName = session->name();
+        QString sessionName = session->name();
+        // ensures the sessionName is a relative path
+        if (sessionName.startsWith(QDir::separator())) {
+            sessionName = sessionName.sliced(1);
+        }
         if (dir.exists(sessionName)) {
             dir.cd(sessionName);
             dir.removeRecursively();
@@ -39,12 +43,20 @@ void KateStashManager::stashDocuments(KConfig *config, std::span<KTextEditor::Do
     // prepare stash directory
     const QString appDataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir dir(appDataPath);
-    dir.mkdir(QStringLiteral("stash"));
-    dir.cd(QStringLiteral("stash"));
+    if (!(dir.mkdir(QStringLiteral("stash")) && dir.cd(QStringLiteral("stash")))) {
+        qCWarning(LOG_KATE) << "Could not create stash directory: " << dir.filePath(QStringLiteral("stash"));
+        return;
+    }
 
-    const QString sessionName = KateApp::self()->sessionManager()->activeSession()->name();
-    dir.mkdir(sessionName);
-    dir.cd(sessionName);
+    QString sessionName = KateApp::self()->sessionManager()->activeSession()->name();
+    // ensures the sessionName is a relative path
+    if (sessionName.startsWith(QDir::separator())) {
+        sessionName = sessionName.sliced(1);
+    }
+    if (!(dir.mkdir(sessionName) && dir.cd(sessionName))) {
+        qCWarning(LOG_KATE) << "Could not stash files to: " << dir.filePath(sessionName);
+        return;
+    }
 
     int i = 0;
     for (KTextEditor::Document *doc : documents) {
